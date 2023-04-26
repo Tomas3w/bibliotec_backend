@@ -4,9 +4,12 @@ namespace app\controllers;
 
 use app\models\Libros;
 
-class LibrosController extends \yii\web\Controller
+use yii\rest\ActiveController;
+
+class LibrosController extends ActiveController
 {
-    public $enableCsrfValidation = false;
+    public $modelClass = 'app\models\Libros';
+    //public $enableCsrfValidation = false;
     /** VER https://www.yiiframework.com/doc/guide/2.0/es/rest-quick-start PARA IMPLEMENTAR */
 
     /**
@@ -23,7 +26,21 @@ class LibrosController extends \yii\web\Controller
      * }
      * 
      */
-    public function actionAltaLibro()
+
+    public function actions()
+    {
+        $actions = parent::actions();
+    
+        // disable the "delete" and "create" actions
+        unset($actions['delete'], $actions['create']);
+    
+        // customize the data provider preparation with the "prepareDataProvider()" method
+        // $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+    
+        return $actions;
+    }
+
+    public function actionCreate()
     {
         
         if(isset($_POST['Libro']) && !empty($_POST['Libro']))
@@ -111,6 +128,11 @@ class LibrosController extends \yii\web\Controller
         }else{
             return json_encode(array("codigo"=>100, "mensaje"=>"No se envio la estructura adecuada, consulte la guia de la API."));
         }
+        
+    }
+
+    public function actionObtenerLibros()
+    {
         
     }
 
