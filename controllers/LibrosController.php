@@ -12,6 +12,11 @@ class LibrosController extends ActiveController
     //public $enableCsrfValidation = false;
     /** VER https://www.yiiframework.com/doc/guide/2.0/es/rest-quick-start PARA IMPLEMENTAR */
 
+    public function actionIndex()
+    {
+        echo 'hola!';
+    }
+
     /**
      * endpoint: /libros/alta-libro
      *  form-data:
