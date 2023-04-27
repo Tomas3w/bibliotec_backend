@@ -15,6 +15,9 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'OuUQyyng0Wi58UbfVBS4dRJk_tGrKp53',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser' // NOTE: makes use of JsonParser to parse the api requests
+            ]
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -48,10 +51,12 @@ $config = [
             // Use pretty URLs
             'enablePrettyUrl' => true,
              'enableStrictParsing' => true,
-            'rules' => [  '<controller>/<action>' => '<controller>/<action>',
+            'rules' => [
+                '<controller>/<action>' => '<controller>/<action>',
                 '<controller:\w+>/<id:\d+>' => '<controller>/view',
                 '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['comentarios']],
             ],
         ],
     ],
