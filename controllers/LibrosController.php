@@ -4,9 +4,7 @@ namespace app\controllers;
 
 use app\models\Libros;
 
-use yii\rest\ActiveController;
-
-class LibrosController extends ActiveController
+class LibrosController extends \yii\web\Controller
 {
     public $modelClass = 'app\models\Libros';
     //public $enableCsrfValidation = false;
@@ -138,7 +136,60 @@ class LibrosController extends ActiveController
 
     public function actionObtenerLibros()
     {
-        
+
+        $query = "";
+        $categoria = "";
+        $subcategoria = "";
+        if(isset($_GET['q']) && !empty($_GET['q']))
+        {
+            $query = $_GET['q'];
+        }
+
+        if(isset($_GET['categoria']) && !empty($_GET['categoria']))
+        {
+            $categoria = $_GET['categoria'];
+        }
+
+        if(isset($_GET['subcategoria']) && !empty($_GET['subcategoria']))
+        {
+            $subcategoria = $_GET['subcategoria'];
+        }
+
+        $datos = array("query" => $query, "categoria" => $categoria, "subcategoria"=>$subcategoria);
+
+        $listadoLibros = Libros::obtenerLibros($datos);
+        $listadoLibros = LibrosController::generarEstrucutraLibros($listadoLibros);
+
+        return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listadoLibros));
     }
+
+    public function generarEstrucutraLibros($libros)
+    {
+        $array = array();
+        foreach($libros as $libro)
+        {
+            $index = null;
+            $index['isbn'] = $libro['lib_isbn'];
+            $index['titulo'] = $libro['lib_titulo'];
+            $index['imagen'] = $libro['lib_imagen'];
+            $index['descripcion'] = $libro['lib_descripcion'];
+            $index['autores'] = $libro['lib_autores'];
+            $index['edicion'] = $libro['lib_edicion'];
+            
+            $fechaLanzamiento = "";
+            if(!empty($libro['lib_fecha_lanzamiento']))
+            {
+                $fechaLanzamiento = date("d/m/Y", strtotime($libro['lib_fecha_lanzamiento']));
+            }
+            $index['fechaLanzamiento'] = $fechaLanzamiento;
+
+            $index['idioma'] = $libro['lib_idioma'];
+            $index['puntuacion'] = $libro['lib_puntuacion'];
+
+            array_push($array,$index);
+        }
+        return $array;
+    }
+
 
 }

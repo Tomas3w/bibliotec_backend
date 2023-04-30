@@ -74,4 +74,100 @@ class Libros extends \yii\db\ActiveRecord
             'lib_puntuacion' => 'Lib Puntuacion',
         ];
     }
+
+
+    public static function obtenerModeloLibro($valor, $atributo = "lib_isbn")
+    {
+        $model = Libros::find()->where(["$atributo" => $valor, "lib_vigente"=>"S"])->one();
+        return $model;
+    }
+
+    public static function existeISBNVigente($isbn)
+    {
+        $modelo = Libros::obtenerModeloLibro($isbn);
+        $existe = "N";
+        if(!empty($modelo))
+        {
+            $existe = "S";
+        }
+        return $existe;
+    }
+
+    public static function nuevoLibro($datos)
+    {
+        $model = new Libros();
+
+        $model->lib_isbn = $datos['isbn'];
+        $model->lib_titulo = $datos['titulo'];
+        $model->lib_descripcion = $datos['descripcion'];
+        $model->lib_imagen = $datos['imagen'];
+        $model->lib_categoria = $datos['categoria'];
+        $model->lib_sub_categoria = $datos['subcategoria'];
+        $model->lib_url = $datos['url'];
+        $model->lib_stock = $datos['stock'];
+        $model->lib_fecha_lanzamiento = $datos['fecha_lanzamiento'];
+        $model->lib_novedades = $datos['novedad'];
+        $model->lib_disponible = "S";
+        $model->lib_vigente = "S";
+
+        if(isset($datos['autores']))
+        {
+            $model->lib_autores =  $datos['autores'];
+        }
+
+        if(isset($datos['edicion']))
+        {
+            $model->lib_edicion =  $datos['edicion'];
+        }
+
+        if(isset($datos['idioma']))
+        {
+            $model->lib_idioma =  $datos['idioma'];
+        }
+
+        if($model->save())
+        {
+            return array("codigo"=>0,"mensaje"=>"Agregado correctamente");
+        }else{
+            return array("codigo"=>105,"mensaje"=>"Error a la hora de ingresar los datos.","data"=>$model->errors);
+        }
+    }
+
+    public static function obtenerLibros($datos)
+    {
+        $subWhere = "";
+
+        if(isset($datos['query']) && !empty($datos['query']))
+        {
+            $subWhere = " AND UPPER(lib_titulo) LIKE UPPER('%".$datos['query']."%') ";
+        }
+
+        if(isset($datos['categoria']) && !empty($datos['categoria']))
+        {
+            $subWhere = " AND EXISTS(SELECT 1
+                                     FROM libros_categorias
+                                     WHERE libcat_lib_id = lib_id
+                                           AND libcat_cat_id IN(".$datos['categoria'].")) ";  
+
+            if(isset($datos['subcategoria']) && !empty($datos['subcategoria']))
+            {
+                $subWhere = " AND EXISTS(SELECT 1
+                                        FROM libros_categorias, sub_categorias
+                                        WHERE libcat_lib_id = lib_id
+                                            AND libcat_subcat_id IN(".$datos['subcategoria'].")
+                                            AND libcat_subcat_id = subcat_id
+                                            AND subcat_cat_id IN(".$datos['categoria'].")) ";  
+            }
+        }
+
+        
+
+        $sql = "SELECT *
+                FROM libros
+                WHERE lib_vigente = 'S'
+                      $subWhere";
+        
+        $libros = Yii::$app->db->createCommand($sql)->queryAll();  
+        return $libros;
+    }
 }
