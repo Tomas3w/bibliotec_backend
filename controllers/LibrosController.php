@@ -3,11 +3,12 @@
 namespace app\controllers;
 
 use app\models\Libros;
+use app\models\Reservas;
 
 class LibrosController extends \yii\web\Controller
 {
     public $modelClass = 'app\models\Libros';
-    //public $enableCsrfValidation = false;
+    public $enableCsrfValidation = false;
     /** VER https://www.yiiframework.com/doc/guide/2.0/es/rest-quick-start PARA IMPLEMENTAR */
 
     public function actionIndex()
@@ -176,7 +177,7 @@ class LibrosController extends \yii\web\Controller
             $index['autores'] = $libro['lib_autores'];
             $index['edicion'] = $libro['lib_edicion'];
             
-            $fechaLanzamiento = "";
+            $fechaLanzamiento = ""; 
             if(!empty($libro['lib_fecha_lanzamiento']))
             {
                 $fechaLanzamiento = date("d/m/Y", strtotime($libro['lib_fecha_lanzamiento']));
@@ -189,6 +190,37 @@ class LibrosController extends \yii\web\Controller
             array_push($array,$index);
         }
         return $array;
+    }
+
+    /**
+     * Para poder cancelar la reserva se tiene que enviar el id de la reserva y el motivo por el cual se quiere cancelar la reserva.
+     * 
+     * Se envia por metodo DELETE, pero se toma los datos por metodo GET, es decir por la URL
+     * 
+     */
+    public function actionCancelarReserva()
+    {
+        if(!isset($_GET['idReserva']) || empty($_GET['idReserva']))
+        {
+            return json_encode(array("codigo"=>100,"mensaje"=>"El id de la reserva es un dato obligatorio."));
+        }
+
+        if(!isset($_GET['motivoCancelacion']) || empty($_GET['motivoCancelacion']))
+        {
+            return json_encode(array("codigo"=>101,"mensaje"=>"El motivo de la cancelacion no puede ser vacio."));
+        }      
+        $idReserva = $_GET['idReserva'];
+        $motivoCancelacion = $_GET['motivoCancelacion'];
+    
+        $estadoReserva = Reservas::obtenerEstadoReserva($idReserva);
+
+        if($estadoReserva == "P" || $estadoReserva == "C")
+        {
+            Reservas::cancelarReserva($idReserva, $motivoCancelacion);
+            return json_encode(array("codigo"=>0,"mensaje"=>"Se cancelo correctamente la reserva"));
+        }else{
+            return json_encode(array("codigo"=>102,"mensaje"=>"No se puede cancelar la reserva, solamente se puede cancelar si esta en pediente o ya confirmada la reserva."));
+        }
     }
 
 
