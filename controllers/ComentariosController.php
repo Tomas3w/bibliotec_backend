@@ -13,20 +13,15 @@ class ComentariosController extends \yii\rest\ActiveController
 {
     public $modelClass = Comentarios::class;
 
-    // public function behaviors()
-    // {
-    //     $behaviors = parent::behaviors();
-    //     return $behaviors;
-    // }
-
     public function beforeAction($action)
     {
         if (!parent::beforeAction($action))
             return false;
-        echo "algo";
-        if (in_array($action, ['post']))
+        if (in_array($action->id, ['create', 'update', 'delete']))
         {
-            if (Usuarios::checkAuth($this->request, $this->modelClass))
+            if ($action->id == 'create' && Usuarios::checkPostAuth($this->request, $this->modelClass))
+                return true;
+            if (($action->id == 'update' || $action->id == 'delete') && Usuarios::checkPutDelAuth($this->request, $this->modelClass))
                 return true;
             throw new ForbiddenHttpException("Bearer token no es valido para el usuario con esa id");
         }

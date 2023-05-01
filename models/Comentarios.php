@@ -59,6 +59,12 @@ class Comentarios extends \yii\db\ActiveRecord
         ];
     }
 
+    public static function findIdentity($id)
+    {
+        return static::findOne(['comet_id' => $id]);
+    }
+
+    // Retorna el usu_id de esta clase (Comentarios), esta funcion es necesario porque a alguien le parecio buena idea utilizar el prefijo de la clase antes de cada atributo
     public static function getNombreUsuID()
     {
         return 'comet_usu_id';

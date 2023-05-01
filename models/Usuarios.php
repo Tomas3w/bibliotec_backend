@@ -90,12 +90,36 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         return $this->usu_token === $authKey;
     }
 
-    public static function checkAuth($request, $modelClass)
+    // Esta funcion no esta hecha; Retorna los tokens de los admins
+    public static function getAdminTokens()
     {
-        $user = Usuarios::findIdentity($request->bodyParams[$modelClass::getNombreUsuID()]);
+        return []; // TODO: esta parte no esta hecha
+    }
+
+    // Retorna true si la POST request tiene un token valido
+    public static function checkPostAuth($request, $modelClass)
+    {
+        $nombre_id = $modelClass::getNombreUsuID();
+        $id = $request->bodyParams[$nombre_id];
+        $user = Usuarios::findIdentity($id);
         if (!isset($user))
             return false;
-        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey())
+        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer' . $token; }, Usuarios::getAdminTokens())))
+            return false;
+        return true;
+    }
+
+    // Retorna true si la PUT (o DELETE) request tiene un token valido
+    public static function checkPutDelAuth($request, $modelClass)
+    {
+        $nombre_id = $modelClass::getNombreUsuID();
+        $id_model_class = $request->queryParams['id'];
+        $identity = $modelClass::findIdentity($id_model_class);
+
+        $user = Usuarios::findIdentity($identity->$nombre_id);
+        if (!isset($user))
+            return false;
+        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer' . $token; }, Usuarios::getAdminTokens())))
             return false;
         return true;
     }
