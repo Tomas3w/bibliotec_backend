@@ -32,6 +32,9 @@ class Comentarios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['comet_fecha_hora', 'comet_comentario', 'comet_usu_id', 'comet_lib_id'], 'required'],
+            [['comet_fecha_hora'], 'datetime', 'format' => 'yyyy-MM-dd HH:mm:ss'],
+
             [['comet_fecha_hora'], 'safe'],
             [['comet_usu_id', 'comet_lib_id', 'comet_referencia_id', 'comet_padre_id'], 'integer'],
             [['comet_comentario'], 'string'],
@@ -54,5 +57,16 @@ class Comentarios extends \yii\db\ActiveRecord
             'comet_padre_id' => 'Comet Padre ID',
             'comet_vigente' => 'Comet Vigente',
         ];
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne(['comet_id' => $id]);
+    }
+
+    // Retorna el usu_id de esta clase (Comentarios), esta funcion es necesario porque a alguien le parecio buena idea utilizar el prefijo de la clase antes de cada atributo
+    public static function getNombreUsuID()
+    {
+        return 'comet_usu_id';
     }
 }
