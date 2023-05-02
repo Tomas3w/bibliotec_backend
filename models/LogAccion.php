@@ -31,7 +31,6 @@ class LogAccion extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['loga_id'], 'required'],
             [['loga_id', 'loga_usu_id', 'loga_logabm_id'], 'integer'],
             [['loga_descripcion'], 'string'],
             [['loga_fecha_hora'], 'safe'],
@@ -55,4 +54,21 @@ class LogAccion extends \yii\db\ActiveRecord
             'loga_logabm_id' => 'Loga Logabm ID',
         ];
     }
+
+    public static function nuevoLog($nombreAccion, $descripcion, $logAbm = null)
+    {
+        $uri = $_SERVER['REDIRECT_URL'];
+        $datos = explode("/web/",$uri);
+        $endPoint = $datos[1];
+        $model = new LogAccion();
+        $model->loga_endpoint = $endPoint;
+        $model->loga_nombre_accoin = $nombreAccion;
+        $model->loga_descripcion = $descripcion;
+        $model->loga_logabm_id = $logAbm;
+        if(!$model->save())
+        {
+            var_dump($model->errors);exit;
+        }
+    }
+
 }

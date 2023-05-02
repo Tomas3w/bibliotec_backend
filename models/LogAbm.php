@@ -57,4 +57,35 @@ class LogAbm extends \yii\db\ActiveRecord
             'logabm_descripcion' => 'Logabm Descripcion',
         ];
     }
+
+    public static function nuevoLog($tbl, $accion, $modeloViejo, $modeloNuevo, $descripcion)
+    {
+        $model = new LogAbm();
+
+        $model->logabm_tabla = $tbl;
+        $model->logabm_accion_id = $accion;
+        $nombreAccion = LogAbm::obtenerNombreAccion($accion);
+        $model->logabm_nombre_accion = $nombreAccion;
+        $model->logabm_modelo_viejo = $modeloViejo;
+        $model->logabm_modelo_nuevo = $modeloNuevo;
+        $model->logabm_descripcion = $descripcion;
+        $model->save();
+        return $model->logabm_id;
+    }
+
+    public static function obtenerNombreAccion($accion)
+    {
+        switch($accion)
+        {
+            case 1:
+                return "Crear";
+            break;
+            case 2:
+                return "Modificar";
+            break;
+            case 3:
+                return "Eliminar";
+            break;
+        }
+    }
 }
