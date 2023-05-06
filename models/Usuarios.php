@@ -123,4 +123,21 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             return false;
         return true;
     }
+
+    public static function bajaUsuario($usu_id){
+        $sql = "UPDATE usuarios SET usu_habilitado='N' WHERE usu_id=$usu_id";
+        if(Yii::$app->db->createCommand($sql)->execute()){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+
+    public static function obtenerUsuariosHabilitados(){
+        $sql = "SELECT usu_id, usu_documento, usu_nombre, usu_apellido, usu_mail, usu_telefono FROM usuarios WHERE usu_habilitado = 'S'";
+        $usuarios = Yii::$app->db->createCommand($sql)->queryAll();
+        return $usuarios;
+    }
+
+
 }
