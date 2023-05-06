@@ -44,12 +44,11 @@ class UsuariosController extends \yii\web\Controller
      */
     public function actionObtenerUsuariosHabilitados(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $datos = json_decode(file_get_contents('php://input'));
-            if($datos->token === "Hola123"){
-                $listaUsuarios = Usuarios::obtenerUsuariosHabilitados();
-                $listaUsuarios = UsuariosController::generarEstructuaUsuariosHabilitados($listaUsuarios);
-                return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listaUsuarios));
-            }
+            //$datos = json_decode(file_get_contents('php://input'));
+            
+            $listaUsuarios = Usuarios::obtenerUsuariosHabilitados();
+            $listaUsuarios = UsuariosController::generarEstructuaUsuariosHabilitados($listaUsuarios);
+            return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listaUsuarios));
         }
 
     }
