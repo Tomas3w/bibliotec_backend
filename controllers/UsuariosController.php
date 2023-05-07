@@ -6,32 +6,32 @@ use app\models\Usuarios;
 
 class UsuariosController extends \yii\web\Controller
 {   
-    /**
-     * .../web/usuarios/baja-usuario
-     * usuario = UsuarioController
-     * baja-usuario = actionBajaUsuario
-     */
-
     public $modelClass = 'app\models\Usuarios';
     public $enableCsrfValidation = false;
     
-    public function actionIndex()
-    {
-        //echo 'hola!';
-    }
-
     public function actionBajaUsuario(){
         /**
-         * Tiene que ser un administrador para poder realizar esta accion 
-         * Entonces hay que recibir algun tipo de autenticación de que es un administrador pero no se como.
-         * 
-         * Y el debo colocar un motivo por el que se da de baja pero no esta en la base de datos.
+         * Se da de baja al usuario con el usu_id que reciba esta funcion
+         * Falta:
+         *      Token: Falta un token para saber si es un administrador que requiere esta acción.
          */
-         
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = json_decode(file_get_contents('php://input'));
 
-            if(Usuarios::bajaUsuario($datos->usu_id, $datos->causa)){
+            if(Usuarios::bajaUsuario($datos->usu_id)){
+                /**
+                 * Falta: Motivo por el que se le da de baja que creo que tendria que crearse un logabm:
+                 * 
+                 * $logabm_usu_id = $datos->usu_id_admin
+                 * $logabm_tabla = "usuarios"
+                 * $logabm_accion_id = ?
+                 * $logabm_nombre_accion = "Baja usuario"
+                 * $logabm_modelo_viejo = ?
+                 * $logabm_modelo_nuevo = ?
+                 * $logabm_descripcion = $datos->causa
+                 */
+                //LogAbmController::altaLogAbm($logabm_usu_id, $logabm_tabla, $logabm_accion_id, $logabm_nombre_accion,   )
+
                 return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));
             }else{
                 return json_encode(array("codigo"=>100,"mensaje"=>"No"));
@@ -39,21 +39,22 @@ class UsuariosController extends \yii\web\Controller
         }
     }
 
-    /**
-     * Listar los usuario habilitados para que el administrador los vea y de de baja el que quiere.
-     */
-    public function actionObtenerUsuariosHabilitados(){
+
+    public function actionObtenerUsuarioshabilitados(){
+            /**
+            * Listar los usuario habilitados para que el administrador los vea y de baja el que requiera.
+            * Falta:
+            *      Token: Falta un token para saber si es un administrador que requiere esta acción.
+            */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            //$datos = json_decode(file_get_contents('php://input'));
             
-            $listaUsuarios = Usuarios::obtenerUsuariosHabilitados();
-            $listaUsuarios = UsuariosController::generarEstructuaUsuariosHabilitados($listaUsuarios);
+            $listaUsuarios = Usuarios::obtenerUsuarioshabilitados();
+            $listaUsuarios = UsuariosController::generarEstructuaUsuarioshabilitados($listaUsuarios);
             return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listaUsuarios));
         }
-
     }
 
-    public function generarEstructuaUsuariosHabilitados($usuarios){
+    public function generarEstructuaUsuarioshabilitados($usuarios){
         
         $array = array();
         foreach($usuarios as $usuario)
