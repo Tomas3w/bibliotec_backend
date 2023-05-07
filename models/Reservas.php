@@ -2,6 +2,9 @@
 
 namespace app\models;
 
+use yii\util\CDateTimeParser;
+use yii\web\ForbiddenHttpException;
+
 use Yii;
 
 /**
@@ -31,10 +34,47 @@ class Reservas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['resv_fecha_hora', 'resv_fecha_desde', 'resv_fecha_hasta', 'resv_lib_id', 'resv_usu_id'], 'required'],
+            [['resv_fecha_hora'], 'datetime', 'format' => 'yyyy-MM-dd HH:mm:ss'],
+            [['resv_fecha_desde', 'resv_fecha_hasta'], 'datetime', 'format' => 'yyyy-MM-dd'],
+
             [['resv_usu_id', 'resv_lib_id'], 'integer'],
             [['resv_fecha_hora', 'resv_fecha_desde', 'resv_fecha_hasta'], 'safe'],
+
+            ['resv_usu_id', 'usuarioYaConReserva'],
+
+            ['resv_fecha_hasta', 'compare', 'compareAttribute' => 'resv_fecha_desde', 'operator' => '>='],
+
+            [['resv_fecha_desde', 'resv_fecha_hasta'], 'reservaIntervalo'],
+
             [['resv_estado'], 'string', 'max' => 2],
+            ['resv_estado', 'default', 'value' => 'P'],
+            ['resv_estado', 'in', 'range' => [
+                'X', // reserva cancelada
+                'P', // reserva pendiente de confirmacion
+                'C', // reserva confirmada
+                'L', // libro levantado
+                'D', // reserva completada (libro devuelto)
+                'N', // reserva no devuelta
+            ]],
         ];
+    }
+
+    public function usuarioYaConReserva($attribute, $params)
+    {
+        if (count(static::find()->where(['resv_usu_id' => $this->resv_usu_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->all()) > 0)
+            $this->addError($attribute, "El usuario especificado ya tiene una reserva");
+    }
+
+    public function reservaIntervalo($attribute, $params)
+    {
+        if (count(static::find()->where(['resv_lib_id' => $this->resv_lib_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->andWhere([
+                'or',
+                ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
+                ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
+            ])->all()) > 0)
+            $this->addError($attribute, "La reserva entra en conflicto de fechas con otra reserva");
+        //andFilterWhere
     }
 
     /**
@@ -77,4 +117,10 @@ class Reservas extends \yii\db\ActiveRecord
         LogAccion::nuevoLog("Cancelar Reserva","Nro Reserva: $idReserva \nMotivo cancelacion:".$motivoCancelacion,$logAbm);
 
     }
+
+    public static function getNombreUsuID()
+    {
+        return 'resv_usu_id';
+    }
+
 }
