@@ -133,4 +133,40 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             return false;
         return true;
     }
+
+    public static function bajaUsuario($usu_id, $motivoBaja)
+    {
+        $modeloViejo = null;
+        $modeloNuevo = null;
+        $nombreTabla = Usuarios::tableName();
+        
+        //$modelUsuario = Usuarios::findIdentity($usu_id);
+        $modelUsuario = Usuarios::find()->where(['usu_id'=>$usu_id])->one();
+        $modeloViejo = json_encode($modelUsuario->attributes);
+
+
+        // if(isset($modelUsuario->attributes) && !empty($modelUsuario->attributes)){
+        //     return false;
+        // }else{
+        
+        $modelUsuario->usu_habilitado = "N"; // modifico el atributo usu_habilitado en la base de datos
+        $modelUsuario->save(); // update
+
+        $modeloNuevo = json_encode($modelUsuario->attributes);
+
+ 
+        $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$modeloViejo,$modeloNuevo,$motivoBaja);
+        LogAccion::nuevoLog("Baja usuario","ID Usuario: $usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
+        return true; 
+
+        // }
+    }
+
+    public static function obtenerUsuarioshabilitados(){
+        $sql = "SELECT usu_id, usu_documento, usu_nombre, usu_apellido, usu_mail, usu_telefono FROM usuarios WHERE usu_habilitado = 'S'";
+        $usuarios = Yii::$app->db->createCommand($sql)->queryAll();
+        return $usuarios;
+    }
+
+
 }
