@@ -123,6 +123,11 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         $nombre_id = $modelClass::getNombreUsuID();
         $id_model_class = $request->queryParams['id'];
         $identity = $modelClass::findIdentity($id_model_class);
+        if (!isset($identity))
+        {
+            throw new \OutOfBoundsException("No se pudo encontrar el modelo ".$modelClass." con id=".$id_model_class);
+            return false;
+        }
 
         $user = Usuarios::findIdentity($identity->$nombre_id);
         if (!isset($user))
