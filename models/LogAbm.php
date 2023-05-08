@@ -69,6 +69,7 @@ class LogAbm extends \yii\db\ActiveRecord
         $model->logabm_modelo_viejo = $modeloViejo;
         $model->logabm_modelo_nuevo = $modeloNuevo;
         $model->logabm_descripcion = $descripcion;
+        $model->logabm_usu_id = 1; // TODO: deberia ser cambiado a otra cosa
         $model->save();
         return $model->logabm_id;
     }
