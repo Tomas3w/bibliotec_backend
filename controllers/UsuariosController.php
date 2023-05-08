@@ -17,21 +17,8 @@ class UsuariosController extends \yii\web\Controller
          */
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = json_decode(file_get_contents('php://input'));
-
-            if(Usuarios::bajaUsuario($datos->usu_id)){
-                /**
-                 * Falta: Motivo por el que se le da de baja que creo que tendria que crearse un logabm:
-                 * 
-                 * $logabm_usu_id = $datos->usu_id_admin
-                 * $logabm_tabla = "usuarios"
-                 * $logabm_accion_id = ?
-                 * $logabm_nombre_accion = "Baja usuario"
-                 * $logabm_modelo_viejo = ?
-                 * $logabm_modelo_nuevo = ?
-                 * $logabm_descripcion = $datos->causa
-                 */
-                //LogAbmController::altaLogAbm($logabm_usu_id, $logabm_tabla, $logabm_accion_id, $logabm_nombre_accion,   )
-
+            
+            if(Usuarios::bajaUsuario($datos->usu_id, $datos->motivoBaja)){
                 return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));
             }else{
                 return json_encode(array("codigo"=>100,"mensaje"=>"No"));
