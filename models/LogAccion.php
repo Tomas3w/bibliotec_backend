@@ -69,6 +69,7 @@ class LogAccion extends \yii\db\ActiveRecord
         {
             var_dump($model->errors);exit;
         }
+        return $model->loga_id;
     }
 
 }

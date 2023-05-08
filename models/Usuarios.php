@@ -42,6 +42,7 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             [['usu_token'], 'string'],
             [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave', 'usu_telefono'], 'string', 'max' => 255],
             [['usu_activo', 'usu_habilitado'], 'string', 'max' => 1],
+            ['usu_token', 'unique'],
         ];
     }
 
@@ -93,7 +94,12 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
     // Esta funcion no esta hecha; Retorna los tokens de los admins
     public static function getAdminTokens()
     {
-        return []; // TODO: esta parte no esta hecha
+        return array_map(function ($usu){ return $usu->usu_token; }, static::findAll(['usu_tipo_usuario' => 1, 'usu_activo' => 'S']));
+    }
+
+    public static function checkIfAdmin($request, $modelClass)
+    {
+        return in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens()));
     }
 
     // Retorna true si la POST request tiene un token valido
@@ -104,7 +110,9 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         $user = Usuarios::findIdentity($id);
         if (!isset($user))
             return false;
-        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer' . $token; }, Usuarios::getAdminTokens())))
+        if ($user->usu_activo == 'N')
+            return false;
+        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens())))
             return false;
         return true;
     }
@@ -118,6 +126,8 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
 
         $user = Usuarios::findIdentity($identity->$nombre_id);
         if (!isset($user))
+            return false;
+        if ($user->usu_activo == 'N')
             return false;
         if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer' . $token; }, Usuarios::getAdminTokens())))
             return false;
