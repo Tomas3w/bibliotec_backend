@@ -3,40 +3,11 @@
 namespace app\controllers;
 use Yii;
 use app\models\Usuarios;
-use app\models\LogAccion;
-use app\models\LogAbm;
-use Yii;
-use yii\web\Response;
-use yii\helpers\Json;
 
 class UsuariosController extends \yii\web\Controller
 {   
     public $modelClass = 'app\models\Usuarios';
     public $enableCsrfValidation = false;
-
-    public function actionAltaUsuario(){
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $response = \Yii::$app->response;
-            $response->format = Response::FORMAT_JSON;
-
-            $body = file_get_contents('php://input');
-            $datos = Json::decode($body, true);
-
-            $obj = new Usuarios();
-            $obj->attributes = $datos;
-            if (!$obj->validate())
-                return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => $obj->getErrors()];
-            if ((isset($datos['usu_token']) || isset($datos['usu_activo']) || isset($datos['usu_habilitado']) || isset($datos['usu_tipo_usuario']) || isset($datos['usu_token'])) && !Usuarios::checkIfAdmin($this->request, $this->modelClass))
-            {
-                return ['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'Solo administradores puden crear usuarios con los atributos: usu_token, usu_activo, usu_habilitado, usu_tipo_usuario o usu_token'];
-            }
-            $obj->save();
-
-            $logAbm = LogAbm::nuevoLog("Usuarios", 1, null, $obj, "Se creo un nuevo usuario");
-            LogAccion::nuevoLog("Crear usuario", "Esperando confirmacion por correo");
-            return ['error' => false];
-        }
-    }
     
     public function actionBajaUsuario(){
         /**
