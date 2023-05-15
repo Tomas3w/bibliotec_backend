@@ -35,14 +35,19 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
     public function rules()
     {
         return [
+            [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave', 'usu_telefono'], 'required'],
             // Crea un token seguro por defecto automaticamente cuando se crea
             [['usu_token'], 'default', 'value' => Yii::$app->security->generateRandomString()],
+            [['usu_habilitado'], 'default', 'value' => 'N'],
+            [['usu_tipo_usuario'], 'default', 'value' => 0],
+
+            ['usu_mail', 'email'],
 
             [['usu_tipo_usuario'], 'integer'],
             [['usu_token'], 'string'],
             [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave', 'usu_telefono'], 'string', 'max' => 255],
             [['usu_activo', 'usu_habilitado'], 'string', 'max' => 1],
-            ['usu_token', 'unique'],
+            [['usu_token', 'usu_documento', 'usu_mail', 'usu_telefono'], 'unique'],
         ];
     }
 
@@ -171,6 +176,11 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         $sql = "SELECT usu_id, usu_documento, usu_nombre, usu_apellido, usu_mail, usu_telefono FROM usuarios WHERE usu_habilitado = 'S'";
         $usuarios = Yii::$app->db->createCommand($sql)->queryAll();
         return $usuarios;
+    }
+
+    public static function getNombreUsuID()
+    {
+        return "id";
     }
 
 
