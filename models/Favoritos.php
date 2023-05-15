@@ -28,6 +28,7 @@ class Favoritos extends \yii\db\ActiveRecord
     {
         return [
             [['fav_usu_id', 'fav_lib_id'], 'integer'],
+            [['fav_usu_id', 'fav_lib_id'], 'unique', 'targetAttribute' => ['fav_usu_id', 'fav_lib_id']],
         ];
     }
 
@@ -41,5 +42,15 @@ class Favoritos extends \yii\db\ActiveRecord
             'fav_usu_id' => 'Fav Usu ID',
             'fav_lib_id' => 'Fav Lib ID',
         ];
+    }
+
+    public static function getNombreUsuID()
+    {
+        return 'fav_usu_id';
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne(['fav_id' => $id]);
     }
 }

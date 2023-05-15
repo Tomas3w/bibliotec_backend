@@ -54,7 +54,6 @@ class ComentariosController extends \yii\rest\ActiveController
         }
         elseif ($action->id == 'update')
         {
-            $nombre_id = $this->modelClass::getNombreUsuID();
             $id = $this->request->queryParams['id'];
     
             $modeloNuevo = json_encode($this->modelClass::findIdentity($id));
@@ -63,8 +62,7 @@ class ComentariosController extends \yii\rest\ActiveController
         }
         elseif ($action->id == 'delete')
         {
-            $nombre_id = $this->modelClass::getNombreUsuID();
-            $id = $this->request->queryParams[$nombre_id];
+            $id = $this->request->queryParams['id'];
     
             $modeloNuevo = json_encode($this->modelClass::findIdentity($id));
             $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, $this->modeloViejo, $modeloNuevo, "Eliminado ".$this->modelClass);

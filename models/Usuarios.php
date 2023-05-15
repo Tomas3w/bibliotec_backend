@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\ForbiddenHttpException;
 
 /**
  * This is the model class for table "usuarios".
@@ -106,6 +107,8 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
     public static function checkPostAuth($request, $modelClass)
     {
         $nombre_id = $modelClass::getNombreUsuID();
+        if (!array_key_exists($nombre_id, $request->bodyParams))
+            return false;
         $id = $request->bodyParams[$nombre_id];
         $user = Usuarios::findIdentity($id);
         if (!isset($user))
