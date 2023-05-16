@@ -61,7 +61,7 @@ class LogAccion extends \yii\db\ActiveRecord
         if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1')
             $endPoint = explode("/web/",$uri)[1];
         else
-            $endPoint = Yii::$app->request->url;
+            $endPoint = substr(Yii::$app->request->url, 1);
         echo Yii::$app->request->baseUrl;
         echo '
         ';
