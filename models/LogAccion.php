@@ -62,15 +62,6 @@ class LogAccion extends \yii\db\ActiveRecord
             $endPoint = explode("/web/",$uri)[1];
         else
             $endPoint = substr(Yii::$app->request->url, 1);
-        echo Yii::$app->request->baseUrl;
-        echo '
-        ';
-        echo Yii::$app->request->absoluteUrl;
-        echo '
-        ';
-        echo Yii::$app->request->url;
-        echo '
-        ';
         $model = new LogAccion();
         $model->loga_endpoint = $endPoint;
         $model->loga_nombre_accoin = $nombreAccion;
