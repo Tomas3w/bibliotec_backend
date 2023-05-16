@@ -58,8 +58,10 @@ class LogAccion extends \yii\db\ActiveRecord
     public static function nuevoLog($nombreAccion, $descripcion, $logAbm = null)
     {
         $uri = $_SERVER['REDIRECT_URL'];
-        $datos = explode("/web/",$uri);
-        $endPoint = $datos[1];
+        if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1')
+            $endPoint = explode("/web/",$uri)[1];
+        else
+            $endPoint = substr(Yii::$app->request->url, 1);
         $model = new LogAccion();
         $model->loga_endpoint = $endPoint;
         $model->loga_nombre_accoin = $nombreAccion;
