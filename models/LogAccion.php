@@ -68,6 +68,9 @@ class LogAccion extends \yii\db\ActiveRecord
         echo Yii::$app->request->absoluteUrl;
         echo '
         ';
+        echo Yii::$app->request->hostName;
+        echo '
+        ';
         $model = new LogAccion();
         $model->loga_endpoint = $endPoint;
         $model->loga_nombre_accoin = $nombreAccion;
