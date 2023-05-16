@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use app\models\Reservas;
 use app\models\Usuarios;
+use app\models\LogAbm;
+use app\models\LogAccion;
 use Yii;
 use yii\web\ForbiddenHttpException;
 
@@ -29,7 +31,7 @@ class ReservasController extends \yii\rest\ActiveController
             {
                 return true;
             }
-            throw new ForbiddenHttpException("Bearer token no es valido o no existe administrador con ese token");
+            throw new ForbiddenHttpException("Bearer token no es valido o no existe administrador con ese token [puede ser que no se haya especificado el id de ".$this->modelClass.']');
         }
         return true;
     }

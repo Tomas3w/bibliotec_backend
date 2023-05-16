@@ -123,4 +123,9 @@ class Reservas extends \yii\db\ActiveRecord
         return 'resv_usu_id';
     }
 
+    public static function findIdentity($id)
+    {
+        return static::findOne(['resv_id' => $id]);
+    }
+
 }
