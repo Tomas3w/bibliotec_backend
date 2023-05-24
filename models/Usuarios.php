@@ -147,6 +147,11 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         return true;
     }
 
+    public static function getTokenFromHeaders($headers)
+    {
+        return explode(" ", $headers['Authorization'])[1];
+    }
+
     public static function bajaUsuario($usu_id, $motivoBaja)
     {
         $modeloViejo = null;
