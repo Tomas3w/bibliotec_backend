@@ -58,7 +58,7 @@ class LogAbm extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function nuevoLog($tbl, $accion, $modeloViejo, $modeloNuevo, $descripcion)
+    public static function nuevoLog($tbl, $accion, $modeloViejo, $modeloNuevo, $descripcion, $id_usuario = 1)
     {
         $model = new LogAbm();
 
@@ -69,7 +69,7 @@ class LogAbm extends \yii\db\ActiveRecord
         $model->logabm_modelo_viejo = $modeloViejo;
         $model->logabm_modelo_nuevo = $modeloNuevo;
         $model->logabm_descripcion = $descripcion;
-        $model->logabm_usu_id = 1; // TODO: deberia ser cambiado a otra cosa
+        $model->logabm_usu_id = $id_usuario;
         $model->save();
         return $model->logabm_id;
     }
@@ -88,5 +88,10 @@ class LogAbm extends \yii\db\ActiveRecord
                 return "Eliminar";
             break;
         }
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne(['logabm_id' => $id]);
     }
 }

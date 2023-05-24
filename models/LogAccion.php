@@ -65,7 +65,7 @@ class LogAccion extends \yii\db\ActiveRecord
         $model->loga_nombre_accoin = $nombreAccion;
         $model->loga_descripcion = $descripcion;
         $model->loga_logabm_id = $logAbm;
-        $model->loga_usu_id = 1; // TODO: deberia ser cambiado a otra cosa
+        $model->loga_usu_id = LogAbm::findIdentity($logAbm)->logabm_usu_id;
         if(!$model->save())
         {
             var_dump($model->errors);exit;

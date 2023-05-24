@@ -18,9 +18,9 @@ class FavoritosController extends \yii\rest\ActiveController
     {
         if (!parent::beforeAction($action))
             return false;
-        if (in_array($action->id, ['create', 'view', 'delete']))
+        if (in_array($action->id, ['create', 'view', 'index', 'delete']))
         {
-            if ($action->id == 'view')
+            if ($action->id == 'view' || $action->id == 'index')
                 return true;
             if ($action->id == 'create' && Usuarios::checkPostAuth($this->request, $this->modelClass))
                 return true;
@@ -39,16 +39,16 @@ class FavoritosController extends \yii\rest\ActiveController
             $nombre_id = $this->modelClass::getNombreUsuID();
             $id = $this->request->bodyParams[$nombre_id];
     
-            $modeloNuevo = json_encode($this->modelClass::findIdentity($id));
-            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, null, $modeloNuevo, "Creado ".$this->modelClass);
+            $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
+            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, null, $modeloNuevo, "Creado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Creado " . $this->modelClass, $this->modelClass." creado con id: ".$id, $logAbm);
         }
         elseif ($action->id == 'delete')
         {
             $id = $this->request->queryParams['id'];
     
-            $modeloNuevo = json_encode($this->modelClass::findIdentity($id));
-            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, null, $modeloNuevo, "Eliminado ".$this->modelClass);
+            $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
+            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, null, $modeloNuevo, "Eliminado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Eliminado " . $this->modelClass, $this->modelClass." eliminado con id: ".$id, $logAbm);
         }
         return $result;
