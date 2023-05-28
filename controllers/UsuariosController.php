@@ -5,6 +5,8 @@ use Yii;
 use app\models\Usuarios;
 use app\models\LogAbm;
 use app\models\LogAccion;
+use yii\rest\ActiveController;
+
 
 class UsuariosController extends \yii\web\Controller
 {   
@@ -12,11 +14,7 @@ class UsuariosController extends \yii\web\Controller
     public $enableCsrfValidation = false;
     
     public function actionBajaUsuario(){
-        /**
-         * Se da de baja al usuario con el usu_id que reciba esta funcion
-         * Falta:
-         *      Token: Falta un token para saber si es un administrador que requiere esta acción.
-         */
+
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = $this->request->bodyParams;
             $usu_id = $datos['usu_id'];
@@ -30,7 +28,7 @@ class UsuariosController extends \yii\web\Controller
             
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>101,"mensaje"=>"El token proporcionado no corresponde a un administrador"));
+                return json_encode(array("codigo"=>101,"mensaje"=>"El token no corresponde a un administrador o no se a enviado"));
             
             // COMPROBAR SI EL USUARIO QUE SE ENVIO EN EL CAMPO usu_id EXISTE
             //$usuario = Usuarios::findIdentity($usu_id);
@@ -38,50 +36,56 @@ class UsuariosController extends \yii\web\Controller
             if ($usuario == null)
                 return json_encode(array("codigo"=>101,"mensaje"=>"El usu_id proporcionado no corresponde a ningun usuario"));
             
+            if ($usuario->usu_habilitado == "N")
+                return json_encode(array("codigo"=>101,"mensaje"=>"El usu_id=".$usu_id." ya se encuentra dado de baja."));
+            
+            
             // DAR BAJA
             $usuarioViejo = null;
             $usuarioNuevo = null;
             $nombreTabla = Usuarios::tableName();
             $usuarioViejo = json_encode($usuario->attributes);
-            $usuario->usu_habilitado = "N"; // Se modifica el atributo usu_habilitado en la base de datos.
+            $usuario->usu_habilitado = "N"; // Se modifica el atributo usu_habilitado.
             $usuario->save(); // Se guardan los nuevos cambios.
             $usuarioNuevo = json_encode($usuario->attributes);
             
-            $usu_id_admin = Usuarios::findOne(['usu_token' => (Usuarios::getTokenFromHeaders($this->request->headers))])->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
+            $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
 
             $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioViejo,$usuarioNuevo,$motivoBaja, $usu_id_admin);
-            LogAccion::nuevoLog("Baja usuario","ID Usuario: $usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
+            LogAccion::nuevoLog("Baja usuario","ID Usuario:$usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
 
-            return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));         
+            return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));       
         }
     }
 
     public function actionObtenerUsuarioshabilitados(){
-            /**
-            * Listar los usuario habilitados para que el administrador los vea y de baja el que requiera.
-            * Falta:
-            *      Token: Falta un token para saber si es un administrador que requiere esta acción.
-            */
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
-            $listaUsuarios = Usuarios::obtenerUsuarioshabilitados();
-            $listaUsuarios = UsuariosController::generarEstructuaUsuarioshabilitados($listaUsuarios);
-            return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listaUsuarios));
+            // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>101,"mensaje"=>"El token no corresponde a un administrador o no se a enviado"));
+           
+                //usuario = Usuarios::findOne(['usu_id' => $usu_id]);
+            $usuarioshabilitados = Usuarios::findAll(['usu_habilitado' => 'S']);
+
+            $arrayUsuarios = UsuariosController::generarEstructuraUsuarioshabilitados($usuarioshabilitados);
+            return json_encode(array("codigo" => 0, "mensaje" => "Todos los usuarios habilitados", "data" => $arrayUsuarios));
         }
     }
 
-    public function generarEstructuaUsuarioshabilitados($usuarios){
+    public function generarEstructuraUsuarioshabilitados($usuarios){
         
         $array = array();
         foreach($usuarios as $usuario)
         {
             $index = null;
-            $index['id'] = $usuario['usu_id'];
-            $index['documento'] = $usuario['usu_documento'];
-            $index['nombre'] = $usuario['usu_nombre'];
-            $index['apellido'] = $usuario['usu_apellido'];
-            $index['mail'] = $usuario['usu_mail'];
-            $index['telefono'] = $usuario['usu_telefono'];
+            $index['usu_id'] = $usuario['usu_id'];
+            $index['usu_documento'] = $usuario['usu_documento'];
+            $index['usu_nombre'] = $usuario['usu_nombre'];
+            $index['usu_apellido'] = $usuario['usu_apellido'];
+            $index['usu_mail'] = $usuario['usu_mail'];
+            $index['usu_telefono'] = $usuario['usu_telefono'];
+            $index['usu_tipo_usuario'] = $usuario['usu_tipo_usuario'];
 
             array_push($array,$index);
         }
