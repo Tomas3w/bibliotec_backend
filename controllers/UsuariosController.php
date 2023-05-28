@@ -47,11 +47,9 @@ class UsuariosController extends \yii\web\Controller
             $usuario->save(); // Se guardan los nuevos cambios.
             $usuarioNuevo = json_encode($usuario->attributes);
             
-            $authorizationHeader = $this->request->headers['Authorization']; // Accede al valor del encabezado de autorización que generalmente contiene el token de acceso enviado por el cliente. 
-            $token = str_replace('Bearer ', '', $authorizationHeader); // Reemplazar la cadena "Bearer " por una cadena vacía
-            $admin = Usuarios::findOne(['usu_token' => $token]); // Obtener el admin para luego guardar el id del admin que hizo la baja
+            $usu_id_admin = Usuarios::findOne(['usu_token' => (Usuarios::getTokenFromHeaders($this->request->headers))])->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
 
-            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioViejo,$usuarioNuevo,$motivoBaja);
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioViejo,$usuarioNuevo,$motivoBaja, $usu_id_admin);
             LogAccion::nuevoLog("Baja usuario","ID Usuario: $usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
 
             return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));         
@@ -64,7 +62,7 @@ class UsuariosController extends \yii\web\Controller
             * Falta:
             *      Token: Falta un token para saber si es un administrador que requiere esta acción.
             */
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             $listaUsuarios = Usuarios::obtenerUsuarioshabilitados();
             $listaUsuarios = UsuariosController::generarEstructuaUsuarioshabilitados($listaUsuarios);
