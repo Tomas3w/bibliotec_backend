@@ -3,6 +3,8 @@
 namespace app\controllers;
 use Yii;
 use app\models\Usuarios;
+use app\models\LogAbm;
+use app\models\LogAccion;
 
 class UsuariosController extends \yii\web\Controller
 {   
@@ -16,16 +18,45 @@ class UsuariosController extends \yii\web\Controller
          *      Token: Falta un token para saber si es un administrador que requiere esta acción.
          */
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-            $datos = json_decode(file_get_contents('php://input'));
+            $datos = $this->request->bodyParams;
+            $usu_id = $datos['usu_id'];
+            $motivoBaja = $datos['motivoBaja'];
+
+
+            if (!isset($usu_id) || empty($usu_id))
+                return json_encode(array("codigo"=>101,"mensaje"=>"No se ha enviado el 'usu_id'."));
+            if (!isset($motivoBaja) || empty($motivoBaja))
+                return json_encode(array("codigo"=>101,"mensaje"=>"No se ha enviado el 'motivoBaja'. "));
             
-            if(Usuarios::bajaUsuario($datos->usu_id, $datos->motivoBaja)){
-                return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));
-            }else{
-                return json_encode(array("codigo"=>100,"mensaje"=>"No"));
-            }
+            // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>101,"mensaje"=>"El token proporcionado no corresponde a un administrador"));
+            
+            // COMPROBAR SI EL USUARIO QUE SE ENVIO EN EL CAMPO usu_id EXISTE
+            //$usuario = Usuarios::findIdentity($usu_id);
+            $usuario = Usuarios::findOne(['usu_id' => $usu_id]);
+            if ($usuario == null)
+                return json_encode(array("codigo"=>101,"mensaje"=>"El usu_id proporcionado no corresponde a ningun usuario"));
+            
+            // DAR BAJA
+            $usuarioViejo = null;
+            $usuarioNuevo = null;
+            $nombreTabla = Usuarios::tableName();
+            $usuarioViejo = json_encode($usuario->attributes);
+            $usuario->usu_habilitado = "N"; // Se modifica el atributo usu_habilitado en la base de datos.
+            $usuario->save(); // Se guardan los nuevos cambios.
+            $usuarioNuevo = json_encode($usuario->attributes);
+            
+            $authorizationHeader = $this->request->headers['Authorization']; // Accede al valor del encabezado de autorización que generalmente contiene el token de acceso enviado por el cliente. 
+            $token = str_replace('Bearer ', '', $authorizationHeader); // Reemplazar la cadena "Bearer " por una cadena vacía
+            $admin = Usuarios::findOne(['usu_token' => $token]); // Obtener el admin para luego guardar el id del admin que hizo la baja
+
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioViejo,$usuarioNuevo,$motivoBaja);
+            LogAccion::nuevoLog("Baja usuario","ID Usuario: $usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
+
+            return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));         
         }
     }
-
 
     public function actionObtenerUsuarioshabilitados(){
             /**
