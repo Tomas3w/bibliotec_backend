@@ -13,7 +13,7 @@ class UsuariosController extends \yii\web\Controller
     public $modelClass = 'app\models\Usuarios';
     public $enableCsrfValidation = false;
     
-    public function actionBajaUsuario(){
+    public function actionDelete(){
 
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = $this->request->bodyParams;
