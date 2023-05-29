@@ -58,7 +58,7 @@ class UsuariosController extends \yii\web\Controller
         }
     }
 
-    public function actionObtenerUsuarioshabilitados(){
+    public function actionListadoUsuarioshabilitados(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
