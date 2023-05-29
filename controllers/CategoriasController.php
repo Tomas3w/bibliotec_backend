@@ -24,17 +24,17 @@ class CategoriasController extends \yii\web\Controller
             $cat_vigente = $datos['cat_vigente'];
 
             if (!isset($cat_nombre) || empty($cat_nombre))
-                return json_encode(array("error"=>true, "error_tipo"=>"0","mensaje"=>"No se ha enviado el 'cat_nombre'."));
+                return json_encode(array("error"=>true, "error_tipo"=>0,"mensaje"=>"No se ha enviado el 'cat_nombre'."));
             if (!isset($cat_vigente) || empty($cat_vigente))
-                return json_encode(array("error"=>true, "error_tipo"=>"1","mensaje"=>"No se ha enviado el 'cat_vigente'."));
+                return json_encode(array("error"=>true, "error_tipo"=>1,"mensaje"=>"No se ha enviado el 'cat_vigente'."));
             if ($cat_vigente != 'S' && $cat_vigente != 'N')
-                return json_encode(array("error"=>true, "error_tipo"=>"2","mensaje"=>"Vigente puede ser 'S' o 'N'."));
+                return json_encode(array("error"=>true, "error_tipo"=>2,"mensaje"=>"Vigente puede ser 'S' o 'N'."));
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>true, "error_tipo"=>"3","mensaje"=>"El token no corresponde a un administrador o no se ha enviado."));
+                return json_encode(array("codigo"=>true, "error_tipo"=>3,"mensaje"=>"El token no corresponde a un administrador o no se ha enviado."));
 
             $categoria = Categorias::findOne(['cat_nombre' => $cat_nombre]);
             if ($categoria != null)
-                return json_encode(array("error"=>true, "error_tipo"=>"4", "mensaje"=>"La categoria con nombre '".$cat_nombre."' ya esta creada."));
+                return json_encode(array("error"=>true, "error_tipo"=>4, "mensaje"=>"La categoria con nombre '".$cat_nombre."' ya esta creada."));
 
             // GUARDAR NUEVA CATEGORIA
             $categoriaNueva = Categorias::nuevaCategoria($cat_nombre, $cat_vigente);
