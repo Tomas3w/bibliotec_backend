@@ -17,7 +17,7 @@ class CategoriasController extends \yii\web\Controller
     }
     */
 
-    public function actionCreate(){
+    public function actionCrear(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $datos = $this->request->bodyParams;
             $cat_nombre = $datos['cat_nombre'];
@@ -51,7 +51,7 @@ class CategoriasController extends \yii\web\Controller
         }
     }
 
-    public function actionMostrarCategorias(){
+    public function actionListado(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO?
@@ -78,7 +78,7 @@ class CategoriasController extends \yii\web\Controller
         return $array;
     }
 
-    public function actionUpdate(){
+    public function actionModificar(){
 
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = $this->request->bodyParams;

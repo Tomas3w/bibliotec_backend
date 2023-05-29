@@ -17,7 +17,7 @@ class SubCategoriasController extends \yii\web\Controller
         return $this->render('index');
     }
     */
-    public function actionCreate(){
+    public function actionCrear(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $datos = $this->request->bodyParams;
             $subcat_cat_id = $datos['subcat_cat_id'];
