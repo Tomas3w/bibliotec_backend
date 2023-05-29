@@ -22,22 +22,22 @@ class UsuariosController extends \yii\web\Controller
 
 
             if (!isset($usu_id) || empty($usu_id))
-                return json_encode(array("codigo"=>101,"mensaje"=>"No se ha enviado el 'usu_id'."));
+                return json_encode(array("error"=>true, "error_tipo"=>0, "mensaje"=>"No se ha enviado el 'usu_id'."));
             if (!isset($motivoBaja) || empty($motivoBaja))
-                return json_encode(array("codigo"=>101,"mensaje"=>"No se ha enviado el 'motivoBaja'. "));
+                return json_encode(array("error"=>true, "error_tipo"=>1, "mensaje"=>"No se ha enviado el 'motivoBaja'."));
             
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>101,"mensaje"=>"El token no corresponde a un administrador o no se a enviado"));
+                return json_encode(array("error"=>true, "error_tipo"=>2, "mensaje"=>"El token no corresponde a un administrador o no se a enviado."));
             
             // COMPROBAR SI EL USUARIO QUE SE ENVIO EN EL CAMPO usu_id EXISTE
             //$usuario = Usuarios::findIdentity($usu_id);
             $usuario = Usuarios::findOne(['usu_id' => $usu_id]);
             if ($usuario == null)
-                return json_encode(array("codigo"=>101,"mensaje"=>"El usu_id proporcionado no corresponde a ningun usuario"));
+                return json_encode(array("error"=>true, "error_tipo"=>3, "mensaje"=>"El usu_id proporcionado no corresponde a ningun usuario"));
             
             if ($usuario->usu_habilitado == "N")
-                return json_encode(array("codigo"=>101,"mensaje"=>"El usu_id=".$usu_id." ya se encuentra dado de baja."));
+                return json_encode(array("error"=>true, "error_tipo"=>4, "mensaje"=>"El usu_id=".$usu_id." ya se encuentra dado de baja."));
             
             
             // DAR BAJA
@@ -54,7 +54,7 @@ class UsuariosController extends \yii\web\Controller
             $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioViejo,$usuarioNuevo,$motivoBaja, $usu_id_admin);
             LogAccion::nuevoLog("Baja usuario","ID Usuario:$usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
 
-            return json_encode(array("codigo"=>0,"mensaje"=>"Usuario dado de baja"));       
+            return json_encode(array("error"=>false,"mensaje"=>"Usuario dado de baja"));       
         }
     }
 
@@ -63,13 +63,13 @@ class UsuariosController extends \yii\web\Controller
             
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>101,"mensaje"=>"El token no corresponde a un administrador o no se a enviado"));
+                return json_encode(array("error"=>true, "error_tipo"=>0, "mensaje"=>"El token no corresponde a un administrador o no se a enviado"));
            
                 //usuario = Usuarios::findOne(['usu_id' => $usu_id]);
             $usuarioshabilitados = Usuarios::findAll(['usu_habilitado' => 'S']);
 
             $arrayUsuarios = UsuariosController::generarEstructuraUsuarioshabilitados($usuarioshabilitados);
-            return json_encode(array("codigo" => 0, "mensaje" => "Todos los usuarios habilitados", "data" => $arrayUsuarios));
+            return json_encode(array("error"=>false, "mensaje" => "Todos los usuarios habilitados", "data" => $arrayUsuarios));
         }
     }
 

@@ -43,4 +43,14 @@ class Categorias extends \yii\db\ActiveRecord
             'cat_vigente' => 'Cat Vigente',
         ];
     }
+
+    public static function nuevaCategoria($cat_nombre, $cat_vigente = 'S'){
+        $model = new Categorias();
+
+        $model->cat_nombre = $cat_nombre;
+        $model->cat_vigente = $cat_vigente;
+        $model->save();
+
+        return $model;
+    }
 }
