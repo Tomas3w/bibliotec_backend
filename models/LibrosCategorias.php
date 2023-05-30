@@ -44,4 +44,13 @@ class LibrosCategorias extends \yii\db\ActiveRecord
             'libcat_subcat_id' => 'Libcat Subcat ID',
         ];
     }
+
+    public static function nuevoLibroCategoria($idLibro, $idCategoria, $idSubCategoria = "")
+    {
+        $model = new LibrosCategorias();
+        $model->libcat_lib_id = $idLibro;
+        $model->libcat_cat_id = $idCategoria;
+        $model->libcat_subcat_id = $idSubCategoria;
+        $model->save();
+    }
 }

@@ -99,6 +99,17 @@ class Reservas extends \yii\db\ActiveRecord
         return $modelReserva->resv_estado;
     }
 
+    public static function obtenerReservas($idUsuarios)
+    {
+        $sql = "SELECT *
+                FROM reservas, libros
+                WHERE resv_lib_id = lib_id AND 
+                      resv_usu_id = $idUsuarios";
+        
+        $misReservas = Yii::$app->db->createCommand($sql)->queryAll();  
+        return $misReservas;
+    }
+
     public static function cancelarReserva($idReserva, $motivoCancelacion)
     {
         $modeloViejo = null;
