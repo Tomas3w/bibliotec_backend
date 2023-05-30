@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use app\models\Libros;
 use app\models\Reservas;
+use app\models\Tokens;
+use app\models\Usuarios;
 
 class LibrosController extends \yii\web\Controller
 {
@@ -141,6 +143,7 @@ class LibrosController extends \yii\web\Controller
         $query = "";
         $categoria = "";
         $subcategoria = "";
+
         if(isset($_GET['q']) && !empty($_GET['q']))
         {
             $query = $_GET['q'];
@@ -148,7 +151,7 @@ class LibrosController extends \yii\web\Controller
 
         if(isset($_GET['categoria']) && !empty($_GET['categoria']))
         {
-            $categoria = $_GET['categoria'];
+            $categoria = $_GET['categoria'];    
         }
 
         if(isset($_GET['subcategoria']) && !empty($_GET['subcategoria']))
@@ -186,41 +189,48 @@ class LibrosController extends \yii\web\Controller
 
             $index['idioma'] = $libro['lib_idioma'];
             $index['puntuacion'] = $libro['lib_puntuacion'];
-
+            $vigente = "Si";
+            if($libro['lib_vigencia']=="N")
+            {
+                $vigente = "No";
+            }
+            $index['vigencia'] = $vigente;
             array_push($array,$index);
         }
         return $array;
     }
 
-    /**
-     * Para poder cancelar la reserva se tiene que enviar el id de la reserva y el motivo por el cual se quiere cancelar la reserva.
-     * 
-     * Se envia por metodo DELETE, pero se toma los datos por metodo GET, es decir por la URL
-     * 
-     */
-    public function actionCancelarReserva()
+    public function actionObtenerTodosLibros()
     {
-        if(!isset($_GET['idReserva']) || empty($_GET['idReserva']))
+       
+        $token = $_GET['token'];
+        $verificacionToken = Tokens::verificarToken($token);
+        if(is_numeric($verificacionToken))
         {
-            return json_encode(array("codigo"=>100,"mensaje"=>"El id de la reserva es un dato obligatorio."));
-        }
+            $idUsuario = $verificacionToken;
+            $modeloUsuario = Usuarios::find()->where(['usu_id'=>$idUsuario,'usu_tipo_usuario' => 1, 'usu_activo' => 'S'])->one();
+            if(!empty($modeloUsuario))
+            {
 
-        if(!isset($_GET['motivoCancelacion']) || empty($_GET['motivoCancelacion']))
-        {
-            return json_encode(array("codigo"=>101,"mensaje"=>"El motivo de la cancelacion no puede ser vacio."));
-        }      
-        $idReserva = $_GET['idReserva'];
-        $motivoCancelacion = $_GET['motivoCancelacion'];
-    
-        $estadoReserva = Reservas::obtenerEstadoReserva($idReserva);
-
-        if($estadoReserva == "P" || $estadoReserva == "C")
-        {
-            Reservas::cancelarReserva($idReserva, $motivoCancelacion);
-            return json_encode(array("codigo"=>0,"mensaje"=>"Se cancelo correctamente la reserva"));
+                $listadoLibros = Libros::obtenerLibros([],"M");
+                $listadoLibros = LibrosController::generarEstrucutraLibros($listadoLibros);
+        
+                return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listadoLibros));
+            }else{
+                $respuesta = array("code"=>101,"msg"=>"El usuario no esta autorizado para la accion.");
+            }
         }else{
-            return json_encode(array("codigo"=>102,"mensaje"=>"No se puede cancelar la reserva, solamente se puede cancelar si esta en pediente o ya confirmada la reserva."));
+            switch($verificacionToken)
+            {
+                case "NE":
+                    $respuesta = array("code"=>100,"msg"=>"No existe o es incorrecto el token enviado.");
+                break;
+                case "EX":
+                    $respuesta = array("code"=>101,"msg"=>"El token ya fue expirado.");
+                break;
+            }
         }
+        return $respuesta;
     }
 
 

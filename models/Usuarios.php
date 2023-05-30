@@ -36,7 +36,7 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
     public function rules()
     {
         return [
-            [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave', 'usu_telefono'], 'required'],
+            [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave'], 'required'],
             // Crea un token seguro por defecto automaticamente cuando se crea
             [['usu_token'], 'default', 'value' => Yii::$app->security->generateRandomString()],
             [['usu_habilitado'], 'default', 'value' => 'N'],
@@ -196,7 +196,11 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             if(Yii::$app->getSecurity()->validatePassword($clave, $modeloUsuario->usu_clave))
             {
                 $tokenGenerado = Tokens::generarToken($modeloUsuario->usu_id);
-                return json_encode(array("codigo"=>0,"mensaje"=>"Login existoso", "data"=>array("token"=>$tokenGenerado)));
+                $modeloUsuario->usu_clave = null;
+                $modeloUsuario->usu_id = null;
+
+                $datos = json_encode($modeloUsuario->attributes);
+                return json_encode(array("codigo"=>0,"mensaje"=>"Login existoso", "data"=>array("token"=>$tokenGenerado,"datosUsuario"=>$datos)));
             }else{
                 return json_encode(array("codigo"=>104, "mensaje"=>"La contraseña es invalida."));
             }
@@ -218,11 +222,17 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         }
         $model->usu_mail = $datos['mail'];
         $model->usu_clave = Yii::$app->getSecurity()->generatePasswordHash($datos['clave']);
-        $model->save();
-        $model->refresh();
-
-        $tokenGenerado = Tokens::generarToken($model->usu_id);
-        return json_encode(array("codigo"=>0,"mensaje"=>"Registro existoso", "data"=>array("token"=>$tokenGenerado)));
+        
+        if($model->save())
+        {
+            $model->refresh();
+    
+            $datosUsuario = json_encode($model->attributes);
+            $tokenGenerado = Tokens::generarToken($model->usu_id);
+            return json_encode(array("codigo"=>0,"mensaje"=>"Registro existoso", "data"=>array("token"=>$tokenGenerado,"datosUsuario"=>$datos)));
+        }else{
+            var_dump($model->errors);exit;
+        }
     }
 
 

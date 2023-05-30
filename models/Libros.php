@@ -101,8 +101,8 @@ class Libros extends \yii\db\ActiveRecord
         $model->lib_titulo = $datos['titulo'];
         $model->lib_descripcion = $datos['descripcion'];
         $model->lib_imagen = $datos['imagen'];
-        $model->lib_categoria = $datos['categoria'];
-        $model->lib_sub_categoria = $datos['subcategoria'];
+        /*$model->lib_categoria = $datos['categoria'];
+        $model->lib_sub_categoria = $datos['subcategoria'];*/
         $model->lib_url = $datos['url'];
         $model->lib_stock = $datos['stock'];
         $model->lib_fecha_lanzamiento = $datos['fecha_lanzamiento'];
@@ -127,15 +127,21 @@ class Libros extends \yii\db\ActiveRecord
 
         if($model->save())
         {
+            $model->refresh();
+            LibrosCategorias::nuevoLibroCategoria($model->lib_id,$datos['categoria'],$datos['subcategoria']);
             return array("codigo"=>0,"mensaje"=>"Agregado correctamente");
         }else{
             return array("codigo"=>105,"mensaje"=>"Error a la hora de ingresar los datos.","data"=>$model->errors);
         }
     }
 
-    public static function obtenerLibros($datos)
+    public static function obtenerLibros($datos, $obtenerVigentes = "S")
     {
-        $subWhere = "";
+        $subWhere = "WHERE lib_vigente = 'S' ";
+        if($obtenerVigentes == "N")
+        {
+            $subWhere = "";
+        }
 
         if(isset($datos['query']) && !empty($datos['query']))
         {
@@ -164,8 +170,7 @@ class Libros extends \yii\db\ActiveRecord
 
         $sql = "SELECT *
                 FROM libros
-                WHERE lib_vigente = 'S'
-                      $subWhere";
+                $subWhere";
         
         $libros = Yii::$app->db->createCommand($sql)->queryAll();  
         return $libros;
