@@ -83,8 +83,12 @@ class UsuariosController extends \yii\web\Controller
             $index['nombre'] = $usuario['usu_nombre'];
             $index['apellido'] = $usuario['usu_apellido'];
             $index['mail'] = $usuario['usu_mail'];
+            $index['clave'] = $usuario['usu_clave'];
             $index['telefono'] = $usuario['usu_telefono'];
+            $index['activo'] = $usuario['usu_activo'];
             $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
+            $index['habilitado'] = $usuario['usu_habilitado'];
+            $index['token'] = $usuario['usu_token'];
 
             array_push($array,$index);
         }

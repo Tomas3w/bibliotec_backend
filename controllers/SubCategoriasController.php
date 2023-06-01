@@ -36,6 +36,9 @@ class SubCategoriasController extends \yii\web\Controller
             $categoria = Categorias::findOne(['cat_id' => $id_categoria]);
             if ($categoria == null)
                 return json_encode(array("codigo"=>4));
+
+            if ($categoria->cat_vigente == "N")
+                return json_encode(array("codigo"=>12));
            
             $subcategoria = SubCategorias::findOne(['subcat_nombre' => $nombre, 'subcat_cat_id' => $id_categoria]);
             if ($subcategoria != null)
@@ -145,7 +148,7 @@ class SubCategoriasController extends \yii\web\Controller
             $subcategoria = SubCategorias::findOne(['subcat_id' => $id]);
             if ($subcategoria == null)
                 return json_encode(array("codigo"=>4));
-            if ($subcategoria->cat_vigente == "N")
+            if ($subcategoria->subcat_vigente == "N")
                 return json_encode(array("codigo"=>9));
             
         
