@@ -12,33 +12,28 @@ class UsuariosController extends \yii\web\Controller
 {   
     public $modelClass = 'app\models\Usuarios';
     public $enableCsrfValidation = false;
-    
+
+   
     public function actionDelete(){
 
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = $this->request->bodyParams;
-            $usu_id = $datos['usu_id'];
-            $motivoBaja = $datos['motivoBaja'];
 
-
-            if (!isset($usu_id) || empty($usu_id))
-                return json_encode(array("error"=>true, "error_tipo"=>0, "mensaje"=>"No se ha enviado el 'usu_id'."));
-            if (!isset($motivoBaja) || empty($motivoBaja))
-                return json_encode(array("error"=>true, "error_tipo"=>1, "mensaje"=>"No se ha enviado el 'motivoBaja'."));
-            
-            // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("error"=>true, "error_tipo"=>2, "mensaje"=>"El token no corresponde a un administrador o no se a enviado."));
-            
-            // COMPROBAR SI EL USUARIO QUE SE ENVIO EN EL CAMPO usu_id EXISTE
-            //$usuario = Usuarios::findIdentity($usu_id);
-            $usuario = Usuarios::findOne(['usu_id' => $usu_id]);
+                return json_encode(array("codigo"=>3));
+
+            if (!isset($datos['id']) || empty($datos['id']) || !isset($datos['motivo']) || empty($datos['motivo']))
+                return json_encode(array("codigo"=>2));
+
+            $id = $datos['id'];
+            $motivo = $datos['motivo'];
+        
+            $usuario = Usuarios::findOne(['usu_id' => $id]);
             if ($usuario == null)
-                return json_encode(array("error"=>true, "error_tipo"=>3, "mensaje"=>"El usu_id proporcionado no corresponde a ningun usuario"));
+                return json_encode(array("codigo"=>4));
             
             if ($usuario->usu_habilitado == "N")
-                return json_encode(array("error"=>true, "error_tipo"=>4, "mensaje"=>"El usu_id=".$usu_id." ya se encuentra dado de baja."));
-            
+                return json_encode(array("codigo"=>9));
             
             // DAR BAJA
             $usuarioViejo = null;
@@ -51,25 +46,29 @@ class UsuariosController extends \yii\web\Controller
             
             $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
 
-            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioViejo,$usuarioNuevo,$motivoBaja, $usu_id_admin);
-            LogAccion::nuevoLog("Baja usuario","ID Usuario:$usu_id \nMotivo baja:".$motivoBaja, $id_logAbm);
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,3,$usuarioViejo,$usuarioNuevo,$motivo, $usu_id_admin);
+            LogAccion::nuevoLog("Baja usuario","ID Usuario:$id \nMotivo baja:".$motivo, $id_logAbm);
 
-            return json_encode(array("error"=>false,"mensaje"=>"Usuario dado de baja"));       
+            return json_encode(array("codigo"=>1));       
+        }else{
+            return json_encode(array("codigo"=>5));
         }
     }
 
-    public function actionListadoUsuarioshabilitados(){
+    public function actionListadoHabilitados(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("error"=>true, "error_tipo"=>0, "mensaje"=>"El token no corresponde a un administrador o no se a enviado"));
+                return json_encode(array("codigo"=>3));
            
                 //usuario = Usuarios::findOne(['usu_id' => $usu_id]);
             $usuarioshabilitados = Usuarios::findAll(['usu_habilitado' => 'S']);
 
             $arrayUsuarios = UsuariosController::generarEstructuraUsuarioshabilitados($usuarioshabilitados);
-            return json_encode(array("error"=>false, "mensaje" => "Todos los usuarios habilitados", "data" => $arrayUsuarios));
+            return json_encode(array("codigo"=>0, "data"=>$arrayUsuarios));
+        }else{
+            return json_encode(array("codigo"=>5));
         }
     }
 
@@ -79,13 +78,13 @@ class UsuariosController extends \yii\web\Controller
         foreach($usuarios as $usuario)
         {
             $index = null;
-            $index['usu_id'] = $usuario['usu_id'];
-            $index['usu_documento'] = $usuario['usu_documento'];
-            $index['usu_nombre'] = $usuario['usu_nombre'];
-            $index['usu_apellido'] = $usuario['usu_apellido'];
-            $index['usu_mail'] = $usuario['usu_mail'];
-            $index['usu_telefono'] = $usuario['usu_telefono'];
-            $index['usu_tipo_usuario'] = $usuario['usu_tipo_usuario'];
+            $index['id'] = $usuario['usu_id'];
+            $index['documento'] = $usuario['usu_documento'];
+            $index['nombre'] = $usuario['usu_nombre'];
+            $index['apellido'] = $usuario['usu_apellido'];
+            $index['mail'] = $usuario['usu_mail'];
+            $index['telefono'] = $usuario['usu_telefono'];
+            $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
 
             array_push($array,$index);
         }

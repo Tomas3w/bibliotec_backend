@@ -17,51 +17,56 @@ class CategoriasController extends \yii\web\Controller
     }
     */
 
-    public function actionCrear(){
+    public function actionCreate(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $datos = $this->request->bodyParams;
-            $cat_nombre = $datos['cat_nombre'];
-            $cat_vigente = $datos['cat_vigente'];
 
-            if (!isset($cat_nombre) || empty($cat_nombre))
-                return json_encode(array("error"=>true, "error_tipo"=>0,"mensaje"=>"No se ha enviado el 'cat_nombre'."));
-            if (!isset($cat_vigente) || empty($cat_vigente))
-                return json_encode(array("error"=>true, "error_tipo"=>1,"mensaje"=>"No se ha enviado el 'cat_vigente'."));
-            if ($cat_vigente != 'S' && $cat_vigente != 'N')
-                return json_encode(array("error"=>true, "error_tipo"=>2,"mensaje"=>"Vigente puede ser 'S' o 'N'."));
+            if (!isset($datos['nombre']) || empty($datos['nombre']) || !isset($datos['vigente']) || empty($datos['vigente']))
+                return json_encode(array("codigo"=>2));
+
+            $nombre = $datos['nombre'];
+            $vigente = $datos['vigente'];
+                    
+            if ($vigente != 'S' && $vigente != 'N')
+                return json_encode(array("codigo"=>2));
+                
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>true, "error_tipo"=>3,"mensaje"=>"El token no corresponde a un administrador o no se ha enviado."));
+                return json_encode(array("codigo"=>3));
+                
 
-            $categoria = Categorias::findOne(['cat_nombre' => $cat_nombre]);
+            $categoria = Categorias::findOne(['cat_nombre' => $nombre]);
             if ($categoria != null)
-                return json_encode(array("error"=>true, "error_tipo"=>4, "mensaje"=>"La categoria con nombre '".$cat_nombre."' ya esta creada."));
-
+                return json_encode(array("codigo"=>9));
+                
             // GUARDAR NUEVA CATEGORIA
-            $categoriaNueva = Categorias::nuevaCategoria($cat_nombre, $cat_vigente);
+            $categoriaNueva = Categorias::nuevaCategoria($nombre, $vigente);
 
             // CREAR LOG
             $categoriaNuevaJson = null;
             $nombreTabla = Categorias::tableName();
             $categoriaNuevaJson = json_encode($categoriaNueva->attributes);
             $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
-            $id_logAbm = LogAbm::nuevoLog($nombreTabla,1,NULL,$categoriaNuevaJson,"Nueva categoria ".$cat_nombre, $usu_id_admin);
-            LogAccion::nuevoLog("Nueva categoria","Nueva categoria '".$cat_nombre."' agregada", $id_logAbm);
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,1,NULL,$categoriaNuevaJson,"Crear categoria ".$nombre, $usu_id_admin);
+            LogAccion::nuevoLog("Crear categoria","Creada categoria con nombre=".$nombre, $id_logAbm);
 
-            return json_encode(array("error"=>"false","mensaje"=>"Nueva categoria creada correctamente."));
+            return json_encode(array("codigo"=>1));
+        }else{
+            return json_encode(array("codigo"=>5));
         }
     }
 
     public function actionListado(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-            // COMPROBAR SI EL TOKEN ES DE UN USUARIO?
-           // if (!Usuarios::checkIfUser($this->request, $this->modelClass))
-               // return json_encode(array("error"=>true, "error_tipo"=>0, "mensaje"=>"El token no corresponde a un usuario o no se a enviado"));
+        
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>3));
             
-            $categorias = Categorias::findAll(['cat_vigente' => 'S']);
+            $categorias = Categorias::find()->all();
 
             $arrayCategorias = CategoriasController::generarEstructuraCategorias($categorias);
-            return json_encode(array("error"=>false, "mensaje" => "Todos las categorias vigentes", "data" => $arrayCategorias));
+            return json_encode(array("codigo"=>0, "data"=>$arrayCategorias));
+        }else{
+            return json_encode(array("codigo"=>5));
         }
     }
 
@@ -71,57 +76,89 @@ class CategoriasController extends \yii\web\Controller
         foreach($categorias as $categoria)
         {
             $index = null;
-            $index['usu_id'] = $categoria['cat_id'];
-            $index['usu_nombre'] = $categoria['cat_nombre'];
+            $index['id'] = $categoria['cat_id'];
+            $index['nombre'] = $categoria['cat_nombre'];
+            $index['vigente'] = $categoria['cat_vigente'];
             array_push($array,$index);
         }
         return $array;
     }
 
-    public function actionModificar(){
+    public function actionUpdate(){
 
         if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $datos = $this->request->bodyParams;
-            $cat_id = $datos['cat_id'];
-            $cat_nombre = $datos['cat_nombre'];
-            $cat_vigente = $datos['cat_vigente'];
 
+            if (!isset($datos['id']) || empty($datos['id']) || !isset($datos['nombre']) || empty($datos['nombre']) )
+                return json_encode(array("codigo"=>2));
 
-            if (!isset($cat_id) || empty($cat_id))
-                return json_encode(array("error"=>true, "error_tipo"=>0, "mensaje"=>"No se ha enviado el 'cat_id'."));
-            if (!isset($cat_nombre) || empty($cat_nombre))
-                return json_encode(array("error"=>true, "error_tipo"=>1, "mensaje"=>"No se ha enviado el 'cat_nombre'."));
-            if (!isset($cat_vigente) || empty($cat_vigente))
-                return json_encode(array("error"=>true, "error_tipo"=>2, "mensaje"=>"No se ha enviado el 'cat_vigente'."));
-            if ($cat_vigente != 'S' && $cat_vigente != 'N')
-                return json_encode(array("error"=>true, "error_tipo"=>3,"mensaje"=>"Vigente puede ser 'S' o 'N'."));
+            $id = $datos['id'];
+            $nuevo_nombre = $datos['nombre'];
             
-            // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("error"=>true, "error_tipo"=>4, "mensaje"=>"El token no corresponde a un administrador o no se a enviado."));
-            
-            // COMPROBAR SI EL id QUE SE ENVIO EN EL CAMPO cat_id EXISTE
-            $categoria = Categorias::findOne(['cat_id' => $cat_id]);
+                return json_encode(array("codigo"=>3));
+
+            $categoria = Categorias::findOne(['cat_id' => $id]);
             if ($categoria == null)
-                return json_encode(array("error"=>true, "error_tipo"=>5, "mensaje"=>"El cat_id proporcionado no corresponde a ninguna categoria"));
+                return json_encode(array("codigo"=>4));
+
+            if ($categoria->cat_nombre == $nuevo_nombre)
+                return json_encode(array("codigo"=>9));
             
         
-            // Actualizar
             $categoriaViejo = null;
             $categoriaNuevo = null;
             $nombreTabla = Categorias::tableName();
             $categoriaViejo = json_encode($categoria->attributes);
-            $categoria->cat_nombre = $cat_nombre;
-            $categoria->cat_vigente = $cat_vigente;
+            $categoria->cat_nombre = $nuevo_nombre;
             $categoria->save();
             $categoriaNuevo = json_encode($categoria->attributes);
             
             $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
 
-            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$categoriaViejo,$categoriaNuevo,"Update categoria", $usu_id_admin);
-            LogAccion::nuevoLog("Update categoria","Update categoria con id: ".$cat_id, $id_logAbm);
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$categoriaViejo,$categoriaNuevo,"Modificar categoria", $usu_id_admin);
+            LogAccion::nuevoLog("Modificar categoria","Modificada categoria con id=".$id, $id_logAbm);
 
-            return json_encode(array("error"=>false,"mensaje"=>"Categoria actualizada."));       
+            return json_encode(array("codigo"=>1));       
+        }else{
+            return json_encode(array("codigo"=>5));
+        }
+    }
+
+    public function actionDelete(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $id = $this->request->queryParams['id'];
+
+            if (!isset($id) || empty($id))
+                return json_encode(array("codigo"=>2));
+            
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>3));
+            
+            $categoria = Categorias::findOne(['cat_id' => $id]);
+            if ($categoria == null)
+                return json_encode(array("codigo"=>4));
+            if ($categoria->cat_vigente == "N")
+                return json_encode(array("codigo"=>9));
+            
+        
+            $categoriaViejo = null;
+            $categoriaNuevo = null;
+            $nombreTabla = Categorias::tableName();
+            $categoriaViejo = json_encode($categoria->attributes);
+            $categoria->cat_vigente = "N";
+            $categoria->save();
+            $categoriaNuevo = json_encode($categoria->attributes);
+            
+            $id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
+
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,3,$categoriaViejo,$categoriaNuevo,"Baja categoria", $id_admin);
+            LogAccion::nuevoLog("Baja categoria","Baja categoria con id=".$id, $id_logAbm);
+
+            return json_encode(array("codigo"=>1));       
+        }else{
+            return json_encode(array("codigo"=>5));
         }
     }
 
