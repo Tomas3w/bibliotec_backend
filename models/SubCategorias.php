@@ -46,4 +46,15 @@ class SubCategorias extends \yii\db\ActiveRecord
             'subcat_vigente' => 'Subcat Vigente',
         ];
     }
+
+    public static function nuevaSubCategoria($subcat_cat_id, $subcat_nombre, $subcat_vigente){
+        $model = new SubCategorias();
+
+        $model->subcat_cat_id = $subcat_cat_id;
+        $model->subcat_nombre = $subcat_nombre;
+        $model->subcat_vigente = $subcat_vigente;
+        $model->save();
+
+        return $model;
+    }
 }
