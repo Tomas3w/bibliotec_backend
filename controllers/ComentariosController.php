@@ -17,6 +17,29 @@ class ComentariosController extends \yii\rest\ActiveController
 
     public $modeloViejo;
 
+    public function actionVigentes()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $datos = $this->request->bodyParams;
+            if (!isset($datos['lib_id']))
+                return ['error' => true, 'error_tipo' => 0, 'error_mensaje' => 'Falta atributo lib_id'];
+            $comentarios = null;
+
+            $comet_id = null;
+            if (isset($datos['comet_id']))
+                $comet_id = $datos['comet_id'];
+            $query = Comentarios::find()
+                    ->where(['comet_lib_id' => $datos['lib_id'], 'comet_padre_id' => $comet_id, 'comet_vigente' => 'S']);
+            if (isset($datos['page']) && isset($datos['per-page']))
+            {
+                $query = $query
+                    ->offset(($datos['page'] - 1) * $datos['per-page'])
+                    ->limit($datos['per-page']);
+            }
+            return $query->orderBy(['comet_fecha_hora' => SORT_DESC])->all();
+        }
+    }
+
     public function beforeAction($action)
     {
         if (!parent::beforeAction($action))
