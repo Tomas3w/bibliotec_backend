@@ -173,5 +173,42 @@ class UsuariosController extends \yii\web\Controller
         echo "<br>";
         echo Yii::$app->getSecurity()->generatePasswordHash("admin");
     }
+
+    public function actionListado(){
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>3));
+            $usuarios = Usuarios::find()->all();
+
+            $arrayUsuarios = UsuariosController::generarEstructuraListado($usuarios);
+            return json_encode(array("codigo"=>0, "data"=>$arrayUsuarios));
+        }else{
+            return json_encode(array("codigo"=>5));
+        }
+    }
+
+    public function generarEstructuraListado($usuarios){
+        
+        $array = array();
+        foreach($usuarios as $usuario)
+        {
+            $index = null;
+            $index['id'] = $usuario['usu_id'];
+            $index['documento'] = $usuario['usu_documento'];
+            $index['nombre'] = $usuario['usu_nombre'];
+            $index['apellido'] = $usuario['usu_apellido'];
+            $index['mail'] = $usuario['usu_mail'];
+            $index['clave'] = $usuario['usu_clave'];
+            $index['telefono'] = $usuario['usu_telefono'];
+            $index['activo'] = $usuario['usu_activo'];
+            $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
+            $index['habilitado'] = $usuario['usu_habilitado'];
+            $index['token'] = $usuario['usu_token'];
+
+            array_push($array,$index);
+        }
+        return $array;
+    } 
     
 }
