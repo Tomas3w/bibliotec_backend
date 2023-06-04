@@ -168,8 +168,7 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             {
                 $tokenGenerado = Tokens::generarToken($modeloUsuario->usu_id);
                 $modeloUsuario->usu_clave = null;
-                $modeloUsuario->usu_id = null;
-
+                
                 $datos = json_encode($modeloUsuario->attributes);
                 return json_encode(array("codigo"=>0,"mensaje"=>"Login existoso", "data"=>array("token"=>$tokenGenerado,"datosUsuario"=>$datos)));
             }else{
