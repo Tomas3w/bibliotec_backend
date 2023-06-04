@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Libros;
+use app\models\LibrosCategorias;
 use app\models\Reservas;
 use app\models\Tokens;
 use app\models\Usuarios;
@@ -91,10 +92,10 @@ class LibrosController extends \yii\web\Controller
                 return json_encode(array("codigo"=>102, "mensaje"=>"La sub-categoria enviada debe ser un numero."));
             }
             
-            if(!isset($datos['url']) || empty($datos['url']))
+            /* if(!isset($datos['url']) || empty($datos['url']))
             {
                 return json_encode(array("codigo"=>101, "mensaje"=>"La URL del libro es obligatoria."));
-            }
+            } */
 
             if(!isset($datos['fecha_lanzamiento']) || empty($datos['fecha_lanzamiento']))
             {
@@ -195,6 +196,16 @@ class LibrosController extends \yii\web\Controller
                 $vigente = "No";
             }
             $index['vigencia'] = $vigente;
+            $categoriasLibros = LibrosCategorias::obtenerCategoriasSubCategorias($libro['lib_id']);
+            $arrayCategorias = array();
+            foreach($categoriasLibros as $cl)
+            {
+                $indexCat = null;
+                $indexCat['categoria'] = $cl['cat_nombre'];
+                $indexCat['subCategoria'] = $cl['subcat_nombre']; 
+                array_push($arrayCategorias,$indexCat);
+            }
+            $index['categorias']  = $arrayCategorias;
             array_push($array,$index);
         }
         return $array;
