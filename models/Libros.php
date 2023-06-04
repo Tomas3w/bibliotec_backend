@@ -103,7 +103,7 @@ class Libros extends \yii\db\ActiveRecord
         $model->lib_imagen = $datos['imagen'];
         /*$model->lib_categoria = $datos['categoria'];
         $model->lib_sub_categoria = $datos['subcategoria'];*/
-        $model->lib_url = $datos['url'];
+        //$model->lib_url = $datos['url'];
         $model->lib_stock = $datos['stock'];
         $model->lib_fecha_lanzamiento = $datos['fecha_lanzamiento'];
         $model->lib_novedades = $datos['novedad'];
