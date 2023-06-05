@@ -63,6 +63,14 @@ class Tokens extends \yii\db\ActiveRecord
         return $token;
     }
 
+    // Retorna true si el token ha expirado
+    public function ha_expirado()
+    {
+        $fechaHoy = strtotime(date("Y-m-d H:i:s"));
+        $fechaExpiracion = strtotime(date("Y-m-d H:i:s",strtotime($this->tk_fecha_expiracion)));
+        return $fechaHoy > $fechaExpiracion;
+    }
+
     /**
      * Verificar token
      * 

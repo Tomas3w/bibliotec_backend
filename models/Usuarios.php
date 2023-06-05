@@ -18,7 +18,6 @@ use yii\web\ForbiddenHttpException;
  * @property string|null $usu_activo
  * @property int|null $usu_tipo_usuario
  * @property string|null $usu_habilitado
- * @property string|null $usu_token
  */
 class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -38,17 +37,17 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         return [
             [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave'], 'required'],
             // Crea un token seguro por defecto automaticamente cuando se crea
-            [['usu_token'], 'default', 'value' => Yii::$app->security->generateRandomString()],
+            // [['usu_token'], 'default', 'value' => Yii::$app->security->generateRandomString()],
             [['usu_habilitado'], 'default', 'value' => 'N'],
             [['usu_tipo_usuario'], 'default', 'value' => 0],
 
             ['usu_mail', 'email'],
 
             [['usu_tipo_usuario'], 'integer'],
-            [['usu_token'], 'string'],
+            // [['usu_token'], 'string'],
             [['usu_documento', 'usu_nombre', 'usu_apellido', 'usu_mail', 'usu_clave', 'usu_telefono'], 'string', 'max' => 255],
             [['usu_activo', 'usu_habilitado'], 'string', 'max' => 1],
-            [['usu_token', 'usu_documento', 'usu_mail', 'usu_telefono'], 'unique'],
+            [['usu_documento', 'usu_mail', 'usu_telefono'], 'unique'],
         ];
     }
 
@@ -68,7 +67,6 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             'usu_activo' => 'Usu Activo',
             'usu_tipo_usuario' => 'Usu Tipo Usuario',
             'usu_habilitado' => 'Usu Habilitado',
-            'usu_token' => 'Usu Token',
         ];
     }
 
@@ -79,7 +77,10 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return static::findOne(['usu_token' => $token]);
+        $id_usuario = Tokens::verificarToken($token);
+        if (!is_integer($id_usuario))
+            throw new \ErrorException('token expirado o no existente');
+        return static::findIdentity($id_usuario);
     }
 
     public function getId()
@@ -89,18 +90,28 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
 
     public function getAuthKey()
     {
-        return $this->usu_token;
+        $token_model = Tokens::findOne(['tk_usu_id' => $this->usu_id]);
+        if ($token_model == null || $token_model->ha_expirado())
+            throw new \ErrorException('token expirado o no existente');
+        return $token_model->tk_token;
     }
 
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey) // no se muy bien porque esta esta funcion o pa que sirve...
     {
         return $this->usu_token === $authKey;
     }
 
-    // Esta funcion no esta hecha; Retorna los tokens de los admins
+    // Retorna los tokens de los admins
     public static function getAdminTokens()
     {
-        return array_map(function ($usu){ return $usu->usu_token; }, static::findAll(['usu_tipo_usuario' => 1, 'usu_activo' => 'S']));
+        return array_filter(array_map(function ($usu){
+            $token_model = Tokens::findOne(['tk_usu_id' => $usu->usu_id]);
+            if ($token_model == null || $token_model->ha_expirado())
+                return null;
+            return $token_model->tk_token;
+        }, static::findAll(['usu_tipo_usuario' => 1, 'usu_activo' => 'S'])), function($token) {
+            return $token != null;
+        });
     }
 
     public static function checkIfAdmin($request, $modelClass)
