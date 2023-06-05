@@ -58,9 +58,9 @@ class CategoriasController extends \yii\web\Controller
     public function actionListado(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
-            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+            /*if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
                 return json_encode(array("codigo"=>3));
-            
+            */
             $categorias = Categorias::find()->all();
 
             $arrayCategorias = CategoriasController::generarEstructuraCategorias($categorias);
