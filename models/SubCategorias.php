@@ -57,4 +57,10 @@ class SubCategorias extends \yii\db\ActiveRecord
 
         return $model;
     }
+
+    public static function obtenerSubCategorias($idCategoria)
+    {
+        $model = SubCategorias::find()->where(['subcat_cat_id'=>$idCategoria,"subcat_vigente"=>"S"])->all();
+        return $model;
+    }
 }

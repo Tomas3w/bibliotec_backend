@@ -5,6 +5,7 @@ use app\models\Categorias;
 use app\models\Usuarios;
 use app\models\LogAbm;
 use app\models\LogAccion;
+use app\models\SubCategorias;
 
 class CategoriasController extends \yii\web\Controller
 {
@@ -79,6 +80,16 @@ class CategoriasController extends \yii\web\Controller
             $index['id'] = $categoria['cat_id'];
             $index['nombre'] = $categoria['cat_nombre'];
             $index['vigente'] = $categoria['cat_vigente'];
+            $index['subCategorias'] = array();
+            $subCategorias = SubCategorias::obtenerSubCategorias($categoria['cat_id']);
+            foreach ($subCategorias as $sb)
+            {
+                $indexSb = null;
+                $indexSb['id'] = $sb['subcat_id'];
+                $indexSb['nombre'] = $sb['subcat_nombre'];
+
+                array_push($index['subCategorias'],$indexSb);
+            }
             array_push($array,$index);
         }
         return $array;
