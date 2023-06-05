@@ -191,7 +191,7 @@ class LibrosController extends \yii\web\Controller
             $index['idioma'] = $libro['lib_idioma'];
             $index['puntuacion'] = $libro['lib_puntuacion'];
             $vigente = "Si";
-            if($libro['lib_vigencia']=="N")
+            if($libro['lib_vigente']=="N")
             {
                 $vigente = "No";
             }
