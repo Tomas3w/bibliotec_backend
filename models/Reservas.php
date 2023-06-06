@@ -72,7 +72,7 @@ class Reservas extends \yii\db\ActiveRecord
                 'or',
                 ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
                 ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
-            ])->all()) > 0)
+            ])->all()) > Libros::findOne(['lib_id' => $this->resv_lib_id])->lib_stock - 1)
             $this->addError($attribute, "La reserva entra en conflicto de fechas con otra reserva");
         //andFilterWhere
     }
