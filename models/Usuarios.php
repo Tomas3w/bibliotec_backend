@@ -88,12 +88,20 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
         return $this->usu_id;
     }
 
-    public function getAuthKey()
+    public function getAuthKey() {
+        throw new \ErrorException('no usar esta funcion por favor');
+    }
+
+    // retorna los tokens no expirados del usuario
+    public function getAuthKeys()
     {
-        $token_model = Tokens::findOne(['tk_usu_id' => $this->usu_id]);
-        if ($token_model == null || $token_model->ha_expirado())
-            throw new \ErrorException('token expirado o no existente');
-        return $token_model->tk_token;
+        $token_models = Tokens::findAll(['tk_usu_id' => $this->usu_id]);
+        $token_models_new = [];
+        foreach ($token_models as $token_model) {
+            if (!$token_model->ha_expirado())
+                $token_models_new[] = $token_model->tk_token;
+        }
+        return $token_models_new;
     }
 
     public function validateAuthKey($authKey) // no se muy bien porque esta esta funcion o pa que sirve...
@@ -104,14 +112,16 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
     // Retorna los tokens de los admins
     public static function getAdminTokens()
     {
-        return array_filter(array_map(function ($usu){
-            $token_model = Tokens::findOne(['tk_usu_id' => $usu->usu_id]);
-            if ($token_model == null || $token_model->ha_expirado())
-                return null;
-            return $token_model->tk_token;
-        }, static::findAll(['usu_tipo_usuario' => 1, 'usu_activo' => 'S'])), function($token) {
-            return $token != null;
-        });
+        $token_models_new = [];
+        $admins = static::findAll(['usu_tipo_usuario' => 1, 'usu_activo' => 'S']);
+        foreach ($admins as $admin) {
+            $token_models = Tokens::findAll(['tk_usu_id' => $admin->usu_id]);
+            foreach ($token_models as $token_model) {
+                if (!$token_model->ha_expirado())
+                    $token_models_new[] = $token_model->tk_token;
+            }
+        };
+        return $token_models_new;
     }
 
     public static function checkIfAdmin($request, $modelClass)
@@ -131,7 +141,7 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             return false;
         if ($user->usu_activo == 'N')
             return false;
-        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens())))
+        if (!in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, $user->getAuthKeys())) && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens())))
             return false;
         return true;
     }
@@ -153,7 +163,7 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             return false;
         if ($user->usu_activo == 'N')
             return false;
-        if ($request->headers['Authorization'] !== 'Bearer ' . $user->getAuthKey() && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer' . $token; }, Usuarios::getAdminTokens())))
+        if (!in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAuthKeys())) && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens())))
             return false;
         return true;
     }
