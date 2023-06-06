@@ -180,6 +180,7 @@ class LibrosController extends \yii\web\Controller
             $index['descripcion'] = $libro['lib_descripcion'];
             $index['autores'] = $libro['lib_autores'];
             $index['edicion'] = $libro['lib_edicion'];
+            $index['novedades'] = $libro['lib_novedades'];
             
             $fechaLanzamiento = ""; 
             if(!empty($libro['lib_fecha_lanzamiento']))
