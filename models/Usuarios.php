@@ -163,7 +163,7 @@ class Usuarios extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfac
             return false;
         if ($user->usu_activo == 'N')
             return false;
-        if (!in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAuthKeys())) && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens())))
+        if (!in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, $user->getAuthKeys())) && !in_array($request->headers['Authorization'], array_map(function ($token){ return 'Bearer ' . $token; }, Usuarios::getAdminTokens())))
             return false;
         return true;
     }
