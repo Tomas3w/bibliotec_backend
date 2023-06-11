@@ -87,9 +87,13 @@ class SugerenciasController extends \yii\rest\ActiveController
         {
             $nombre_id = $this->modelClass::getNombreID();
             $id = $this->request->bodyParams[$nombre_id];
+            if ($this->modeloViejo != null)
+                $json_atributos = json_encode($this->modeloViejo->attributes);
+            else
+                $json_atributos = "";
     
             $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
-            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 2, json_encode($this->modeloViejo->attributes), $modeloNuevo, "Actualizado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
+            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 2, $json_atributos, $modeloNuevo, "Actualizado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Actualizado " . $this->modelClass, $this->modelClass." actualizado con id: ".$id, $logAbm);
         }
         return $result;
