@@ -59,10 +59,10 @@ class UsuariosController extends \yii\web\Controller
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
-            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>3));
+            // if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+            //     return json_encode(array("codigo"=>3));
            
-                //usuario = Usuarios::findOne(['usu_id' => $usu_id]);
+            //usuario = Usuarios::findOne(['usu_id' => $usu_id]);
             $usuarioshabilitados = Usuarios::findAll(['usu_habilitado' => 'S']);
 
             $arrayUsuarios = UsuariosController::generarEstructuraUsuarioshabilitados($usuarioshabilitados);

@@ -23,7 +23,7 @@ class Sugerencias extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'Sugerencias';
+        return 'sugerencias';
     }
 
     /**
