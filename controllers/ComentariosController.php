@@ -70,25 +70,37 @@ class ComentariosController extends \yii\rest\ActiveController
         {
             $nombre_id = $this->modelClass::getNombreUsuID();
             $id = $this->request->bodyParams[$nombre_id];
+            if ($this->modeloViejo != null)
+                $json_atributos = json_encode($this->modeloViejo->attributes);
+            else
+                $json_atributos = "";
     
             $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
-            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, json_encode($this->modeloViejo->attributes), $modeloNuevo, "Creado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
+            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, $json_atributos, $modeloNuevo, "Creado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Creado " . $this->modelClass, $this->modelClass." creado con id: ".$id, $logAbm);
         }
         elseif ($action->id == 'update')
         {
             $id = $this->request->queryParams['id'];
+            if ($this->modeloViejo != null)
+                $json_atributos = json_encode($this->modeloViejo->attributes);
+            else
+                $json_atributos = "";
     
             $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
-            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 2, json_encode($this->modeloViejo->attributes), $modeloNuevo, "Actualizado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
+            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 2, $json_atributos, $modeloNuevo, "Actualizado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Actualizado " . $this->modelClass, $this->modelClass." actualizado con id: ".$id, $logAbm);
         }
         elseif ($action->id == 'delete')
         {
             $id = $this->request->queryParams['id'];
+            if ($this->modeloViejo != null)
+                $json_atributos = json_encode($this->modeloViejo->attributes);
+            else
+                $json_atributos = "";
             $modeloNuevo = json_encode([]);
 
-            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 3, json_encode($this->modeloViejo->attributes), $modeloNuevo, "Eliminado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
+            $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 3, $json_atributos, $modeloNuevo, "Eliminado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Eliminado " . $this->modelClass, $this->modelClass." eliminado con id: ".$id, $logAbm);
         }
         return $result;
