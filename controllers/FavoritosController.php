@@ -46,8 +46,8 @@ class FavoritosController extends \yii\rest\ActiveController
         elseif ($action->id == 'delete')
         {
             $id = $this->request->queryParams['id'];
-    
-            $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
+            $modeloNuevo = json_encode([]);
+
             $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, null, $modeloNuevo, "Eliminado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);
             LogAccion::nuevoLog("Eliminado " . $this->modelClass, $this->modelClass." eliminado con id: ".$id, $logAbm);
         }
