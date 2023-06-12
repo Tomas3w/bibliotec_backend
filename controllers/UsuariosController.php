@@ -55,45 +55,7 @@ class UsuariosController extends \yii\web\Controller
         }
     }
 
-    public function actionListadoHabilitados(){
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            
-            // COMPROBAR SI EL TOKEN ES DE UN USUARIO ADMIN
-            // if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-            //     return json_encode(array("codigo"=>3));
-           
-            //usuario = Usuarios::findOne(['usu_id' => $usu_id]);
-            $usuarioshabilitados = Usuarios::findAll(['usu_habilitado' => 'S']);
 
-            $arrayUsuarios = UsuariosController::generarEstructuraUsuarioshabilitados($usuarioshabilitados);
-            return json_encode(array("codigo"=>0, "data"=>$arrayUsuarios));
-        }else{
-            return json_encode(array("codigo"=>5));
-        }
-    }
-
-    public function generarEstructuraUsuarioshabilitados($usuarios){
-        
-        $array = array();
-        foreach($usuarios as $usuario)
-        {
-            $index = null;
-            $index['id'] = $usuario['usu_id'];
-            $index['documento'] = $usuario['usu_documento'];
-            $index['nombre'] = $usuario['usu_nombre'];
-            $index['apellido'] = $usuario['usu_apellido'];
-            $index['mail'] = $usuario['usu_mail'];
-            $index['clave'] = $usuario['usu_clave'];
-            $index['telefono'] = $usuario['usu_telefono'];
-            $index['activo'] = $usuario['usu_activo'];
-            $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
-            $index['habilitado'] = $usuario['usu_habilitado'];
-            // $index['token'] = $usuario['usu_token'];
-
-            array_push($array,$index);
-        }
-        return $array;
-    }  
 
     public function actionLogin()
     {
