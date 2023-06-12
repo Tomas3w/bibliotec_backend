@@ -245,5 +245,22 @@ class LibrosController extends \yii\web\Controller
         return $respuesta;
     }
 
+    public function actionObtenerLibro()
+    {
+        if(!isset($_GET['isbn']))
+            return json_encode(['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'no se envio isbn de libro']);
+
+        $isbn = $_GET['isbn'];
+
+        $sql = "SELECT *
+                FROM libros
+                WHERE lib_isbn = $isbn";
+        $libro = \Yii::$app->db->createCommand($sql)->queryOne();  
+        if ($libro == null)
+            return json_encode(['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'no existe libro con el isbn especificado']);
+        
+        return json_encode(["error" => false, "libro" => $libro]);
+    }
+
 
 }
