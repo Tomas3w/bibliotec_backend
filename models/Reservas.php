@@ -62,13 +62,13 @@ class Reservas extends \yii\db\ActiveRecord
 
     public function usuarioYaConReserva($attribute, $params)
     {
-        if (count(static::find()->where(['resv_usu_id' => $this->resv_usu_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->all()) > 0)
+        if (count(static::find()->where(['resv_usu_id' => $this->resv_usu_id])->andWhere(['!=', 'resv_id', $this->resv_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->all()) > 0)
             $this->addError($attribute, "El usuario especificado ya tiene una reserva");
     }
 
     public function reservaIntervalo($attribute, $params)
     {
-        if (count(static::find()->where(['resv_lib_id' => $this->resv_lib_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->andWhere([
+        if (count(static::find()->where(['resv_lib_id' => $this->resv_lib_id])->andWhere(['!=', 'resv_id', $this->resv_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->andWhere([
                 'or',
                 ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
                 ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
