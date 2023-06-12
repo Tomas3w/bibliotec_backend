@@ -80,9 +80,9 @@ class FavoritosController extends \yii\rest\ActiveController
                     break;//a
                 }
             }
-            return json_encode($respuesta);
+            return $respuesta;
         }else{
-            return json_encode(array("code"=>100,"msg"=>"El token es obligatorio"));
+            return array("code"=>100,"msg"=>"El token es obligatorio");
         }
     }
 
