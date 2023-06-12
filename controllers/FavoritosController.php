@@ -75,12 +75,12 @@ class FavoritosController extends \yii\rest\ActiveController
                     break;
                     case "EX":
                         $respuesta = array("code"=>101,"msg"=>"El token ya fue expirado.");
-                    break;
+                    break;//a
                 }
             }
-            return json_encode($respuesta);
+            return $respuesta;
         }else{
-            return json_encode(array("code"=>100,"msg"=>"El token es obligatorio"));
+            return array("code"=>100,"msg"=>"El token es obligatorio");
         }
     }
 
