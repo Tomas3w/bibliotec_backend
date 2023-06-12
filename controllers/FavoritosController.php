@@ -7,6 +7,7 @@ use app\models\Libros;
 use app\models\Usuarios;
 use app\models\LogAbm;
 use app\models\LogAccion;
+use app\models\Tokens;
 use Yii;
 use yii\web\ForbiddenHttpException;
 
@@ -54,6 +55,36 @@ class FavoritosController extends \yii\rest\ActiveController
         return $result;
     }
 
-}
+    public function actionObtenerFavoritos()
+    {
+        if(isset($_GET['token']) && !empty($_GET['token']))
+        {
+            $tokenUsuario = $_GET['token'];
+            $verificacionToken = Tokens::verificarToken($tokenUsuario);
+            if(is_numeric($verificacionToken))
+            {
+                /** $verificacionToken cuanod es numerico es el id del usuario */
+                $favoritos = Favoritos::obtenerLibrosFavoritos($verificacionToken);
+                $favoritos = LibrosController::generarEstrucutraLibros($favoritos, "S");
+                $respuesta = array("code"=>0,"msg"=>"Favoritos obtenidos con exito", "data"=>$favoritos);
+            }else{
+                switch($verificacionToken)
+                {
+                    case "NE":
+                        $respuesta = array("code"=>100,"msg"=>"No existe o es incorrecto el token enviado.");
+                    break;
+                    case "EX":
+                        $respuesta = array("code"=>101,"msg"=>"El token ya fue expirado.");
+                    break;
+                }
+            }
+            return json_encode($respuesta);
+        }else{
+            return json_encode(array("code"=>100,"msg"=>"El token es obligatorio"));
+        }
+    }
+
+
+}   
 
 ?>
