@@ -88,7 +88,7 @@ class UsuariosController extends \yii\web\Controller
             $index['activo'] = $usuario['usu_activo'];
             $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
             $index['habilitado'] = $usuario['usu_habilitado'];
-            $index['token'] = $usuario['usu_token'];
+            // $index['token'] = $usuario['usu_token'];
 
             array_push($array,$index);
         }
@@ -204,7 +204,7 @@ class UsuariosController extends \yii\web\Controller
             $index['activo'] = $usuario['usu_activo'];
             $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
             $index['habilitado'] = $usuario['usu_habilitado'];
-            $index['token'] = $usuario['usu_token'];
+            // $index['token'] = $usuario['usu_token'];
 
             array_push($array,$index);
         }

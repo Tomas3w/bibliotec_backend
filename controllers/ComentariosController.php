@@ -17,6 +17,32 @@ class ComentariosController extends \yii\rest\ActiveController
 
     public $modeloViejo;
 
+    public static function respuestas_de_comentario($comentario_id)
+    {
+        $respuestas = Comentarios::findAll(['comet_padre_id' => $comentario_id, 'comet_vigente' => 'S']);
+        for ($i = 0; $i < count($respuestas); $i++)
+        {
+            $respuestas[$i] = $respuestas[$i]->attributes;
+            $respuestas[$i]['respuestas'] = static::respuestas_de_comentario($respuestas[$i]['comet_id']);
+        }
+        return $respuestas;
+    }
+
+    // toma comentarios y un booleano, si $es_arbol = true entonces retorna la version de arbol de comentarios
+    // y sino, retorna los comentarios sin cambios
+    public static function hacer_arbol($comentarios, $es_arbol)
+    {
+        if ($es_arbol)
+        {
+            for ($i = 0; $i < count($comentarios); $i++)
+            {
+                $comentarios[$i] = $comentarios[$i]->attributes;
+                $comentarios[$i]['respuestas'] = static::respuestas_de_comentario($comentarios[$i]['comet_id']);
+            }
+        }
+        return $comentarios;
+    }
+
     public function actionVigentes()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -36,7 +62,10 @@ class ComentariosController extends \yii\rest\ActiveController
                     ->offset(($datos['page'] - 1) * $datos['per-page'])
                     ->limit($datos['per-page']);
             }
-            return $query->orderBy(['comet_fecha_hora' => SORT_DESC])->all();
+            $arbol = null;
+            if (isset($datos['arbol']))
+                $arbol = $datos['arbol'];
+            return static::hacer_arbol($query->orderBy(['comet_fecha_hora' => SORT_DESC])->all(), $arbol);
         }
     }
 
