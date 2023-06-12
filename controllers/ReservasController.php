@@ -137,6 +137,20 @@ class ReservasController extends \yii\rest\ActiveController
         }
     }
 
+    /**
+     * Retorna las reservas de un usuario
+     * */
+    public function actionObtener()
+    {
+        if (!isset($_GET['id']))
+            return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'id de usuario es necesaria'];
+        $id = $_GET['id'];
+        $reserva = Reservas::findAll(['resv_usu_id' => $id]);
+        if (count($reserva) == 0)
+            return ['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'no existe reserva para el id especificado'];
+        return ['error' => false, 'reserva' => $reserva];
+    }
+
 }
 
 ?>
