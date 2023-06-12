@@ -75,7 +75,7 @@ class FavoritosController extends \yii\rest\ActiveController
                     break;
                     case "EX":
                         $respuesta = array("code"=>101,"msg"=>"El token ya fue expirado.");
-                    break;
+                    break;//a
                 }
             }
             return $respuesta;
