@@ -168,7 +168,7 @@ class LibrosController extends \yii\web\Controller
         return json_encode(array("codigo" => 0, "mensaje" => "", "data" => $listadoLibros));
     }
 
-    public function generarEstrucutraLibros($libros)
+    public static function generarEstrucutraLibros($libros, $esFavoritos = "N")
     {
         $array = array();
         foreach($libros as $libro)
@@ -209,6 +209,10 @@ class LibrosController extends \yii\web\Controller
                 array_push($arrayCategorias,$indexCat);
             }
             $index['categorias']  = $arrayCategorias;
+            if($esFavoritos == "S")
+            {
+                $index['fav_id'] = $libro['fav_id'];
+            }
             array_push($array,$index);
         }
         return $array;

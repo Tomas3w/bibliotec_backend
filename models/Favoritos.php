@@ -53,4 +53,18 @@ class Favoritos extends \yii\db\ActiveRecord
     {
         return static::findOne(['fav_id' => $id]);
     }
+
+    public static function obtenerLibrosFavoritos($idUsuario)
+    {
+        $sql = "SELECT *
+                FROM favoritos, libros
+                WHERE fav_lib_id = lib_id
+                      AND lib_vigente = 'S'
+                      AND fav_usu_id = $idUsuario";
+        
+        
+        $favoritos = Yii::$app->db->createCommand($sql)->queryAll();  
+        return $favoritos;
+    }
+
 }
