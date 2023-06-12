@@ -174,6 +174,8 @@ class LibrosController extends \yii\web\Controller
         foreach($libros as $libro)
         {
             $index = null;
+            $index['id'] = $libro['lib_id'];
+            $index['stock'] = $libro['lib_stock'];
             $index['isbn'] = $libro['lib_isbn'];
             $index['titulo'] = $libro['lib_titulo'];
             $index['imagen'] = $libro['lib_imagen'];
