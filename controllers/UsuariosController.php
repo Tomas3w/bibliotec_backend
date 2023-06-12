@@ -177,10 +177,11 @@ class UsuariosController extends \yii\web\Controller
     public function actionFind(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $documento = $this->request->queryParams['doc'];
-            
+                       
+            /*
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
                 return json_encode(array("codigo"=>3));
-            
+            */
             if (!isset($documento) || empty($documento) )
                 return json_encode(array("codigo"=>2));
         
