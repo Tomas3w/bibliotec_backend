@@ -58,7 +58,7 @@ class FavoritosController extends \yii\rest\ActiveController
     public function actionObtenerFavoritos()
     {
         //header('Access-Control-Allow-Origin: *');
-        header("Content-type: application/json; charset=utf-8");
+        //header("Content-type: application/json; charset=utf-8");
         if(isset($_GET['token']) && !empty($_GET['token']))
         {
             $tokenUsuario = $_GET['token'];
