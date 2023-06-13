@@ -9,6 +9,7 @@ use app\models\LogAccion;
 use app\models\Tokens;
 use Yii;
 use yii\web\ForbiddenHttpException;
+use app\models\Libros;
 
 class ReservasController extends \yii\rest\ActiveController
 {
@@ -145,10 +146,29 @@ class ReservasController extends \yii\rest\ActiveController
         if (!isset($_GET['id']))
             return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'id de usuario es necesaria'];
         $id = $_GET['id'];
-        $reserva = Reservas::findAll(['resv_usu_id' => $id]);
-        if (count($reserva) == 0)
+        $reservas = Reservas::findAll(['resv_usu_id' => $id]);
+        if (count($reservas) == 0)
             return ['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'no existe reserva para el id especificado'];
-        return ['error' => false, 'reserva' => $reserva];
+        
+
+        // Recorrer las reservas y agrregarle el isbn
+        $array = array();
+        foreach($reservas as $reserva){
+            $libro = Libros::findOne(['lib_id' => $reserva['resv_lib_id']]);
+            $index = null;
+            $index['resv_id'] = $reserva['resv_id'];
+            $index['resv_usu_id'] = $reserva['resv_usu_id'];
+            $index['resv_fecha_hora'] = $reserva['resv_fecha_hora'];
+            //$index['resv_lib_id'] = $reserva['resv_lib_id'];
+            $index['resv_fecha_desde'] = $reserva['resv_fecha_desde'];
+            $index['resv_fecha_hasta'] = $reserva['resv_fecha_hasta'];
+            $index['resv_estado'] = $reserva['resv_estado'];
+            $index['isbn_libro'] = $libro->lib_isbn;
+
+            array_push($array,$index);
+        }
+
+        return ['error' => false, 'reserva' => $array];
     }
 
 }
