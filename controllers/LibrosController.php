@@ -7,6 +7,8 @@ use app\models\LibrosCategorias;
 use app\models\Reservas;
 use app\models\Tokens;
 use app\models\Usuarios;
+use app\models\LogAbm;
+use app\models\LogAccion;
 
 class LibrosController extends \yii\web\Controller
 {
@@ -266,6 +268,44 @@ class LibrosController extends \yii\web\Controller
             return json_encode(['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'no existe libro con el isbn especificado']);
         
         return json_encode(["error" => false, "libro" => $libro]);
+    }
+
+
+    public function actionDelete(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $id = $this->request->queryParams['id'];
+
+            if (!isset($id) || empty($id))
+                return json_encode(array("codigo"=>2));
+
+            // SOLO UN ADMINISTRADOR PUEDE ELIMINAR UN LIBRO
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>3));
+            
+            $libro = Libros::findOne(['lib_id' => $id]);
+            if ($libro == null)
+                return json_encode(array("codigo"=>4));
+            if ($libro->lib_vigente == "N")
+                return json_encode(array("codigo"=>9));
+            
+        
+            $libroModeloViejo = null;
+            $libroModeloNuevo = null;
+            $libroModeloViejo = json_encode($libro->attributes);
+            $libro->lib_vigente = "N";
+            $libro->save();
+            $libroModeloNuevo = json_encode($libro->attributes);
+            
+            $id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
+
+            $id_logAbm = LogAbm::nuevoLog(Libros::tableName(),3,$libroModeloViejo,$libroModeloNuevo,"Baja libro", $id_admin);
+            LogAccion::nuevoLog("Baja libro","Baja libro con id=".$id, $id_logAbm);
+
+            return json_encode(array("codigo"=>1));       
+        }else{
+            return json_encode(array("codigo"=>5));
+        }
     }
 
 
