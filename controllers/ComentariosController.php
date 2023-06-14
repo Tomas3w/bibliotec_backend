@@ -84,7 +84,7 @@ class ComentariosController extends \yii\rest\ActiveController
             {
                 $nombre_id = $this->modelClass::getNombreUsuID();
                 $id = $this->request->queryParams['id'];
-                $this->modeloViejo = json_encode($this->modelClass::findIdentity($id));
+                $this->modeloViejo = $this->modelClass::findIdentity($id);
                 return true;
             }
             throw new ForbiddenHttpException("Bearer token no es valido para el usuario con esa id");
