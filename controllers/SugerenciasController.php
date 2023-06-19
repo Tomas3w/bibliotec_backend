@@ -76,8 +76,9 @@ class SugerenciasController extends \yii\rest\ActiveController
         $result = parent::afterAction($action, $result);
         if ($action->id == 'create')
         {
-            $nombre_id = $this->modelClass::getNombreUsuID();
-            $id = $this->request->bodyParams[$nombre_id];
+            // $nombre_id = $this->modelClass::getNombreUsuID();
+            // $id = $this->request->bodyParams[$nombre_id];
+            $id = $result[$this->modelClass::getNombreID()];
     
             $modeloNuevo = json_encode($this->modelClass::findIdentity($id)->attributes);
             $logAbm = LogAbm::nuevoLog($this->modelClass::getTableSchema()->name, 1, null, $modeloNuevo, "Creado ".$this->modelClass, Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id);

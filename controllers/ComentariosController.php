@@ -97,8 +97,9 @@ class ComentariosController extends \yii\rest\ActiveController
         $result = parent::afterAction($action, $result);
         if ($action->id == 'create')
         {
-            $nombre_id = $this->modelClass::getNombreUsuID();
-            $id = $this->request->bodyParams[$nombre_id];
+            //$nombre_id = $this->modelClass::getNombreUsuID();
+            //$id = $this->request->bodyParams[$nombre_id];
+            $id = $result[$this->modelClass::getNombreID()];
             if ($this->modeloViejo != null)
                 $json_atributos = json_encode($this->modeloViejo->attributes);
             else
