@@ -46,6 +46,7 @@ class Reservas extends \yii\db\ActiveRecord
             ['resv_fecha_hasta', 'compare', 'compareAttribute' => 'resv_fecha_desde', 'operator' => '>='],
 
             [['resv_fecha_desde', 'resv_fecha_hasta'], 'reservaIntervalo'],
+            [['resv_fecha_desde', 'resv_fecha_hasta'], 'reservaIntervaloMax'],
 
             [['resv_estado'], 'string', 'max' => 2],
             ['resv_estado', 'default', 'value' => 'P'],
@@ -60,20 +61,41 @@ class Reservas extends \yii\db\ActiveRecord
         ];
     }
 
+    public function reservaIntervaloMax($attribute, $params)
+    {
+        $fechaDesde = new \DateTime($this->resv_fecha_desde);
+        $fechaHasta = new \DateTime($this->resv_fecha_hasta);
+        $diferencia = $fechaDesde->diff($fechaHasta)->days;
+
+        if ($diferencia > 10) {
+            $this->addError($attribute, "La diferencia entre las fechas no puede ser mayor a 10 días.");
+        }
+    }
+
     public function usuarioYaConReserva($attribute, $params)
     {
-        echo $this->resv_id;
-        if (count(static::find()->where(['resv_usu_id' => $this->resv_usu_id])->andWhere(['!=', 'resv_id', $this->resv_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->andWhere([
+        // echo $this->resv_id;
+        if (count(static::find()
+            ->where(['resv_usu_id' => $this->resv_usu_id])
+            ->andWhere(['!=', 'resv_id', $this->resv_id])
+            ->andWhere(['!=', 'resv_estado', 'X'])
+            ->andWhere(['!=', 'resv_estado', 'D'])
+            ->andWhere([
                 'or',
                 ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
                 ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
-            ])->all()) > 0)
-            $this->addError($attribute, "El usuario especificado ya tiene una reserva");
+            ])->all()) > 3)
+            $this->addError($attribute, "El usuario especificado ya tiene 3 reservas ya");
     }
 
     public function reservaIntervalo($attribute, $params)
     {
-        if (count(static::find()->where(['resv_lib_id' => $this->resv_lib_id])->andWhere(['!=', 'resv_id', $this->resv_id])->andWhere(['!=', 'resv_estado', 'X'])->andWhere(['!=', 'resv_estado', 'D'])->andWhere([
+        if (count(static::find()
+            ->where(['resv_lib_id' => $this->resv_lib_id])
+            ->andWhere(['!=', 'resv_id', $this->resv_id])
+            ->andWhere(['!=', 'resv_estado', 'X'])
+            ->andWhere(['!=', 'resv_estado', 'D'])
+            ->andWhere([
                 'or',
                 ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
                 ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
