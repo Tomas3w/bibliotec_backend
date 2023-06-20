@@ -69,4 +69,9 @@ class Comentarios extends \yii\db\ActiveRecord
     {
         return 'comet_usu_id';
     }
+
+    public static function getNombreID()
+    {
+        return 'comet_id';
+    }
 }
