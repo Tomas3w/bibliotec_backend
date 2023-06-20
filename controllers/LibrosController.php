@@ -270,6 +270,56 @@ class LibrosController extends \yii\web\Controller
         return json_encode(["error" => false, "libro" => $libro]);
     }
 
+    public function actionModificarLibro()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(["error" => true, 'error_tipo' => 4, 'error_mensaje' => 'Usuario no autorizado, solo administradores pueden modificar libros']);
+
+            // Check if ISBN is provided
+            if (!isset($_GET['isbn'])) {
+                return json_encode(['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'No se envio el ISBN del libro.']);
+            }
+
+            $isbn = $_GET['isbn'];
+
+            // Find the libro by ISBN
+            $libro = Libros::findOne(['lib_isbn' => $isbn]);
+
+            // Check if libro exists
+            if ($libro == null) {
+                return json_encode(['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'No existe un libro con el ISBN especificado.']);
+            }
+
+            // Update the libro attributes if provided
+            $datos = \Yii::$app->request->getBodyParams();
+
+            // Update libro attributes
+            $libro->lib_titulo = isset($datos['titulo']) ? $datos['titulo'] : $libro->lib_titulo;
+            $libro->lib_descripcion = isset($datos['descripcion']) ? $datos['descripcion'] : $libro->lib_descripcion;
+            $libro->lib_autores = isset($datos['autores']) ? $datos['autores'] : $libro->lib_autores;
+            $libro->lib_stock = isset($datos['stock']) ? $datos['stock'] : $libro->lib_stock;
+            $libro->lib_puntuacion = isset($datos['puntuacion']) ? $datos['puntuacion'] : $libro->lib_puntuacion;
+            $libro->lib_imagen = isset($datos['imagen']) ? $datos['imagen'] : $libro->lib_imagen;
+            // $libro->lib_url = isset($datos['url']) ? $datos['url'] : $libro->lib_url;
+            $libro->lib_fecha_lanzamiento = isset($datos['fecha_lanzamiento']) ? $datos['fecha_lanzamiento'] : $libro->lib_fecha_lanzamiento;
+            $libro->lib_idioma = isset($datos['idioma']) ? $datos['idioma'] : $libro->lib_idioma;
+            $libro->lib_novedades = isset($datos['novedades']) ? $datos['novedades'] : $libro->lib_novedades;
+            $libro->lib_disponible = isset($datos['disponible']) ? $datos['disponible'] : $libro->lib_disponible;
+            $libro->lib_vigente = isset($datos['vigente']) ? $datos['vigente'] : $libro->lib_vigente;
+            $libro->lib_edicion = isset($datos['edicion']) ? $datos['edicion'] : $libro->lib_edicion;
+
+            // Save the updated libro
+            $libro->save();
+
+            // Encode the modified libro as JSON
+            return json_encode(["error" => false, "libro" => $libro->attributes]);
+        } else {
+            return json_encode(['error' => true, 'error_tipo' => 3, 'error_mensaje' => 'El metodo HTTP debe ser PUT.']);
+        }
+    }
+
+
 
     public function actionDelete(){
 
