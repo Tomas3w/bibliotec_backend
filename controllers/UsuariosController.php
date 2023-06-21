@@ -3,6 +3,7 @@
 namespace app\controllers;
 use Yii;
 use app\models\Usuarios;
+use app\models\Tokens;
 use app\models\LogAbm;
 use app\models\LogAccion;
 use yii\rest\ActiveController;
@@ -209,4 +210,19 @@ class UsuariosController extends \yii\web\Controller
         }
     }
     
+    public function actionTokenSigueValido()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if (!isset($this->request->queryParams['token']))
+                return json_encode(['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'Debe especificarse un token']);
+            $token_v = $this->request->queryParams['token'];
+            $token = Tokens::findOne(['tk_token' => $token_v]);
+            if ($token == null)
+                return json_encode(['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'Token no existe']);
+            return json_encode(['error' => false, 'ha_expirado' => (Tokens::verificarToken($token) == 'EX')]);
+        }
+        else {
+            return json_encode(['error' => true, 'error_tipo' => 3, 'error_mensaje' => 'El metodo HTTP debe ser GET.']);
+        }
+    }
 }
