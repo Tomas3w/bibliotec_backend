@@ -225,4 +225,73 @@ class UsuariosController extends \yii\web\Controller
             return json_encode(['error' => true, 'error_tipo' => 3, 'error_mensaje' => 'El metodo HTTP debe ser GET.']);
         }
     }
+
+    public function actionUpdate(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $datos = $this->request->bodyParams;
+
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>3));
+
+            if (!isset($datos['id']) || empty($datos['id']) || !isset($datos['documento']) || empty($datos['documento']) || !isset($datos['nombre']) || empty($datos['nombre']) )
+                return json_encode(array("codigo"=>2));
+
+            if (!isset($datos['apellido']) || empty($datos['apellido']) || !isset($datos['mail']) || empty($datos['mail']) || !isset($datos['clave']) || empty($datos['clave']) )
+                return json_encode(array("codigo"=>2));
+            
+            if (!isset($datos['telefono']) || empty($datos['telefono']) || !isset($datos['activo']) || empty($datos['activo']) || !isset($datos['tipo']) || empty($datos['tipo']) )
+                return json_encode(array("codigo"=>2));
+
+            if (($datos['activo'] != 'S' && $datos['activo'] != 'N'))
+                return json_encode(array("codigo"=>2));
+
+            if (($datos['tipo'] != 1 && $datos['tipo'] != 0))
+                return json_encode(array("codigo"=>2));
+
+
+            // if (!Usuarios::getvalidarCedula($datos['documento'])){
+            //     return json_encode(array("codigo"=>104));
+            //     // El documento es no es valido
+            // }
+
+            if (!filter_var($datos['mail'], FILTER_VALIDATE_EMAIL)){
+                return json_encode(array("codigo"=> 106));
+                // El mail es incorrecto
+            }
+
+            $id = $datos['id'];
+
+            $usuario = Usuarios::findOne(['usu_id' => $id]);
+
+            if ($usuario == null)
+                return json_encode(array("codigo"=>4));
+
+        
+            $usuarioModeloViejo = null;
+            $usuarioModeloNuevo = null;
+            $nombreTabla = Usuarios::tableName();
+            $usuarioModeloViejo = json_encode($usuario->attributes);
+            $usuario->usu_documento = $datos['documento'];
+            $usuario->usu_nombre = $datos['nombre'];
+            $usuario->usu_apellido = $datos['apellido'];
+            $usuario->usu_mail = $datos['mail'];
+            $usuario->usu_clave = Yii::$app->getSecurity()->generatePasswordHash($datos['clave']);
+            $usuario->usu_telefono = $datos['telefono'];
+            $usuario->usu_activo = $datos['activo'];
+            $usuario->usu_tipo_usuario = $datos['tipo'];
+            
+            $usuario->save();
+            $usuarioModeloNuevo = json_encode($usuario->attributes);
+            
+            $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id; // Obtener el id del admin para luego guardar quien hizo la baja
+
+            $id_logAbm = LogAbm::nuevoLog($nombreTabla,2,$usuarioModeloViejo,$usuarioModeloNuevo,"Modificar usuario", $usu_id_admin);
+            LogAccion::nuevoLog("Modificar usuario","Modificado usuarios con id=".$id, $id_logAbm);
+
+            return json_encode(array("codigo"=>1));       
+        }else{
+            return json_encode(array("codigo"=>5));
+        }
+    }
 }
