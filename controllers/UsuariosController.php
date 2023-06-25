@@ -238,7 +238,7 @@ class UsuariosController extends \yii\web\Controller
                 return json_encode(array("codigo"=>2));
 
             //if (!isset($datos['documento']) || empty($datos['documento']))
-            //    return json_encode(array("codigo"=>2));
+                //return json_encode(array("codigo"=>2));
 
             if (!isset($datos['apellido']) || empty($datos['apellido']) || !isset($datos['mail']) || empty($datos['mail']) || !isset($datos['clave']) || empty($datos['clave']) )
                 return json_encode(array("codigo"=>2));
@@ -253,10 +253,10 @@ class UsuariosController extends \yii\web\Controller
                 return json_encode(array("codigo"=>2));
 
 
-            if (!Usuarios::getvalidarCedula($datos['documento'])){
-                return json_encode(array("codigo"=>104));
-                // El documento es no es valido
-            }
+            // if (!Usuarios::getvalidarCedula($datos['documento'])){
+            //     return json_encode(array("codigo"=>104));
+            //     // El documento es no es valido
+            // }
 
             if (!filter_var($datos['mail'], FILTER_VALIDATE_EMAIL)){
                 return json_encode(array("codigo"=> 106));
