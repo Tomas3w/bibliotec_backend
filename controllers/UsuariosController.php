@@ -250,10 +250,10 @@ class UsuariosController extends \yii\web\Controller
                 return json_encode(array("codigo"=>2));
 
 
-            // if (!Usuarios::getvalidarCedula($datos['documento'])){
-            //     return json_encode(array("codigo"=>104));
-            //     // El documento es no es valido
-            // }
+            if (!Usuarios::getvalidarCedula($datos['documento'])){
+                return json_encode(array("codigo"=>104));
+                // El documento es no es valido
+            }
 
             if (!filter_var($datos['mail'], FILTER_VALIDATE_EMAIL)){
                 return json_encode(array("codigo"=> 106));
