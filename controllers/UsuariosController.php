@@ -234,8 +234,11 @@ class UsuariosController extends \yii\web\Controller
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
                 return json_encode(array("codigo"=>3));
 
-            if (!isset($datos['id']) || empty($datos['id']) || !isset($datos['documento']) || empty($datos['documento']) || !isset($datos['nombre']) || empty($datos['nombre']) )
+            if (!isset($datos['id']) || empty($datos['id'])  || !isset($datos['nombre']) || empty($datos['nombre']) )
                 return json_encode(array("codigo"=>2));
+
+            //if (!isset($datos['documento']) || empty($datos['documento']))
+            //    return json_encode(array("codigo"=>2));
 
             if (!isset($datos['apellido']) || empty($datos['apellido']) || !isset($datos['mail']) || empty($datos['mail']) || !isset($datos['clave']) || empty($datos['clave']) )
                 return json_encode(array("codigo"=>2));
@@ -272,7 +275,7 @@ class UsuariosController extends \yii\web\Controller
             $usuarioModeloNuevo = null;
             $nombreTabla = Usuarios::tableName();
             $usuarioModeloViejo = json_encode($usuario->attributes);
-            $usuario->usu_documento = $datos['documento'];
+            //$usuario->usu_documento = $datos['documento'];
             $usuario->usu_nombre = $datos['nombre'];
             $usuario->usu_apellido = $datos['apellido'];
             $usuario->usu_mail = $datos['mail'];
