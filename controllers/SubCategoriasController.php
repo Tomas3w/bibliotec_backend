@@ -63,33 +63,26 @@ class SubCategoriasController extends \yii\web\Controller
 
     public function actionListado(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        
-            /*if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>3));*/
-            
+                    
             $subcategorias = SubCategorias::find()->all();
 
-            $arraySubCategorias = SubCategoriasController::generarEstructuraListado($subcategorias);
+            $arraySubCategorias = array();
+            foreach($subcategorias as $subcategoria)
+            {
+                $index = null;
+                $index['id'] = $subcategoria['subcat_id'];
+                $index['id_categoria'] = $subcategoria['subcat_cat_id'];
+                $index['nombre'] = $subcategoria['subcat_nombre'];
+                $index['vigente'] = $subcategoria['subcat_vigente'];
+                array_push($arraySubCategorias,$index);
+            }
+
             return json_encode(array("codigo"=>0, "data"=>$arraySubCategorias));
         }else{
             return json_encode(array("codigo"=>5));
         }
     }
 
-    public function generarEstructuraListado($subcategorias){
-        
-        $array = array();
-        foreach($subcategorias as $subcategoria)
-        {
-            $index = null;
-            $index['id'] = $subcategoria['subcat_id'];
-            $index['id_categoria'] = $subcategoria['subcat_cat_id'];
-            $index['nombre'] = $subcategoria['subcat_nombre'];
-            $index['vigente'] = $subcategoria['subcat_vigente'];
-            array_push($array,$index);
-        }
-        return $array;
-    }
 
     public function actionUpdate(){
 
@@ -177,7 +170,7 @@ class SubCategoriasController extends \yii\web\Controller
             $id = $this->request->queryParams['id'];
 
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>2, 'mensaje' => 'Debe ser un usuario administrador'));
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Token invalido'));
 
 
             if (!isset($id) || empty($id))

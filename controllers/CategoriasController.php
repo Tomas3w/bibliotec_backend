@@ -179,7 +179,7 @@ class CategoriasController extends \yii\web\Controller
             $id = $this->request->queryParams['id'];
 
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>2, 'mensaje' => 'Debe ser un usuario administrador'));
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Token invalido'));
 
 
             if (!isset($id) || empty($id))
