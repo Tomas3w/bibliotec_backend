@@ -171,6 +171,29 @@ class ReservasController extends \yii\rest\ActiveController
         return ['error' => false, 'reserva' => $array];
     }
 
+    /**
+     * Retorna las reservas de un libro
+     * */
+    public function actionObtenerDeLibro()
+    {
+        if (!isset($_GET['id']))
+            return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'id del libro es necesario'];
+        $id = $_GET['id'];
+        $reservas = Reservas::findAll(['resv_lib_id' => $id]);        
+
+        // Recorrer las reservas y Agregarle el isbn
+        $array = array();
+        foreach($reservas as $reserva){
+            $libro = Libros::findOne(['lib_id' => $reserva['resv_lib_id']]);
+            $index = $reserva->attributes;
+            $index['isbn_libro'] = $libro->lib_isbn;
+
+            array_push($array,$index);
+        }
+
+        return ['error' => false, 'reserva' => $array];
+    }
+
 
     public function actionListado(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
