@@ -242,7 +242,7 @@ class UsuariosController extends \yii\web\Controller
             $usuario = Usuarios::findOne(['usu_id' => $id]);
 
             if ($usuario == null)
-                return json_encode(array("codigo"=>4));
+                return json_encode(array("codigo"=>4, 'mensaje' => 'Usuario no encontrado'));
 
             $usuarioModeloViejo = json_encode($usuario->attributes);
             $bandera = false;
