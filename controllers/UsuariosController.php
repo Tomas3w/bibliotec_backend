@@ -232,11 +232,11 @@ class UsuariosController extends \yii\web\Controller
             $datos = $this->request->bodyParams;
 
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>2));
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Debe ser un usuario adminitrador'));
 
 
             if (!isset($datos['id']) || empty($datos['id']))
-                return json_encode(array("codigo"=>3));
+                return json_encode(array("codigo"=>3, 'mensaje' => 'El id es obligatorio'));
 
             $id = $datos['id'];
             $usuario = Usuarios::findOne(['usu_id' => $id]);
