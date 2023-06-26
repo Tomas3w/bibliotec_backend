@@ -87,6 +87,9 @@ class LogAbm extends \yii\db\ActiveRecord
             case 3:
                 return "Eliminar";
             break;
+            case 4:
+                return "Activar";
+            break;
         }
     }
 

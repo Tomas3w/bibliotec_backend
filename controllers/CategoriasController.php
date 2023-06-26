@@ -173,4 +173,37 @@ class CategoriasController extends \yii\web\Controller
         }
     }
 
+    public function actionActivar(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $id = $this->request->queryParams['id'];
+
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Debe ser un usuario administrador'));
+
+
+            if (!isset($id) || empty($id))
+                return json_encode(array("codigo"=>3, 'mensaje' => 'El id es obligatorio'));
+
+            $categoria = Categorias::findOne(['cat_id' => $id]);
+
+            if ($categoria == null)
+                return json_encode(array("codigo"=>4, 'mensaje' => 'Categoria no encontrada'));
+            if ($categoria->cat_vigente == "S")
+                return json_encode(array("codigo"=>5, 'mensaje' => 'La categoria ya esta activada'));
+
+            $categoriaModeloViejo = json_encode($categoria->attributes);
+            $categoria->subcat_vigente = "S";
+            $categoria->save();
+            $categoriaModeloNuevo = json_encode($categoria->attributes);             
+            $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
+            $id_logAbm = LogAbm::nuevoLog(Categorias::tableName(),4,$categoriaModeloViejo,$categoriaModeloNuevo,"Activar categoria", $usu_id_admin);
+            LogAccion::nuevoLog("Activar categoria","Activar categoria con id=".$id, $id_logAbm);
+
+            return json_encode(array("codigo"=>6, 'mensaje' => 'Se a activado con exito'));      
+        }else{
+            return json_encode(array("codigo"=>7, 'mensaje' => 'El metodo no es el correcto'));   
+        }
+    }
+
 }
