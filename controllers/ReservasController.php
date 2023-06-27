@@ -158,6 +158,7 @@ class ReservasController extends \yii\rest\ActiveController
             $index = null;
             $index['resv_id'] = $reserva['resv_id'];
             $index['resv_usu_id'] = $reserva['resv_usu_id'];
+            $index['usu_documento'] = Usuarios::findOne(['usu_id' => $reserva['resv_usu_id']]);
             $index['resv_fecha_hora'] = $reserva['resv_fecha_hora'];
             $index['resv_lib_id'] = $reserva['resv_lib_id'];
             $index['resv_fecha_desde'] = $reserva['resv_fecha_desde'];
@@ -187,6 +188,7 @@ class ReservasController extends \yii\rest\ActiveController
             $libro = Libros::findOne(['lib_id' => $reserva['resv_lib_id']]);
             $index = $reserva->attributes;
             $index['isbn_libro'] = $libro->lib_isbn;
+            $index['usu_documento'] = Usuarios::findOne(['usu_id' => $reserva['resv_usu_id']]);
 
             array_push($array,$index);
         }
@@ -212,6 +214,7 @@ class ReservasController extends \yii\rest\ActiveController
                 $index = null;
                 $index['resv_id'] = $reserva['resv_id'];
                 $index['resv_usu_id'] = $reserva['resv_usu_id'];
+                $index['usu_documento'] = Usuarios::findOne(['usu_id' => $reserva['resv_usu_id']]);
                 $index['resv_fecha_hora'] = $reserva['resv_fecha_hora'];
                 $index['resv_lib_id'] = $reserva['resv_lib_id'];
                 $index['resv_fecha_desde'] = $reserva['resv_fecha_desde'];
