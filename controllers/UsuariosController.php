@@ -363,7 +363,7 @@ class UsuariosController extends \yii\web\Controller
             if ($usuario == null)
                 return json_encode(array("codigo"=>4, 'mensaje' => 'Usuario no encontrado'));
             if ($usuario->usu_habilitado == "S")
-                return json_encode(array("codigo"=>5, 'mensaje' => 'La el usuario ya esta activado'));
+                return json_encode(array("codigo"=>5, 'mensaje' => 'El usuario ya esta activado'));
 
             $usuarioModeloViejo = json_encode($usuario->attributes);
             $usuario->usu_habilitado = "S";

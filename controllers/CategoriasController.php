@@ -193,7 +193,7 @@ class CategoriasController extends \yii\web\Controller
                 return json_encode(array("codigo"=>5, 'mensaje' => 'La categoria ya esta activada'));
 
             $categoriaModeloViejo = json_encode($categoria->attributes);
-            $categoria->subcat_vigente = "S";
+            $categoria->cat_vigente = "S";
             $categoria->save();
             $categoriaModeloNuevo = json_encode($categoria->attributes);             
             $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
