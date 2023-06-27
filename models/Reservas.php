@@ -80,12 +80,13 @@ class Reservas extends \yii\db\ActiveRecord
             ->andWhere(['!=', 'resv_id', $this->resv_id])
             ->andWhere(['!=', 'resv_estado', 'X'])
             ->andWhere(['!=', 'resv_estado', 'D'])
-            ->andWhere([
-                'or',
-                ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
-                ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
-            ])->all()) > 3)
-            $this->addError($attribute, "El usuario especificado ya tiene 3 reservas ya");
+            // ->andWhere([
+            //     'or',
+            //     ['and', ['>=', 'resv_fecha_hasta', $this->resv_fecha_desde], ['<=', 'resv_fecha_hasta', $this->resv_fecha_hasta]],
+            //     ['and', ['>=', 'resv_fecha_desde', $this->resv_fecha_desde], ['<=', 'resv_fecha_desde', $this->resv_fecha_hasta]],
+            // ])
+            ->all()) > 3)
+            $this->addError($attribute, "El usuario especificado tiene 3 reservas ya");
     }
 
     public function reservaIntervalo($attribute, $params)
