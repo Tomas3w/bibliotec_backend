@@ -63,33 +63,26 @@ class SubCategoriasController extends \yii\web\Controller
 
     public function actionListado(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        
-            /*if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>3));*/
-            
+                    
             $subcategorias = SubCategorias::find()->all();
 
-            $arraySubCategorias = SubCategoriasController::generarEstructuraListado($subcategorias);
+            $arraySubCategorias = array();
+            foreach($subcategorias as $subcategoria)
+            {
+                $index = null;
+                $index['id'] = $subcategoria['subcat_id'];
+                $index['id_categoria'] = $subcategoria['subcat_cat_id'];
+                $index['nombre'] = $subcategoria['subcat_nombre'];
+                $index['vigente'] = $subcategoria['subcat_vigente'];
+                array_push($arraySubCategorias,$index);
+            }
+
             return json_encode(array("codigo"=>0, "data"=>$arraySubCategorias));
         }else{
             return json_encode(array("codigo"=>5));
         }
     }
 
-    public function generarEstructuraListado($subcategorias){
-        
-        $array = array();
-        foreach($subcategorias as $subcategoria)
-        {
-            $index = null;
-            $index['id'] = $subcategoria['subcat_id'];
-            $index['id_categoria'] = $subcategoria['subcat_cat_id'];
-            $index['nombre'] = $subcategoria['subcat_nombre'];
-            $index['vigente'] = $subcategoria['subcat_vigente'];
-            array_push($array,$index);
-        }
-        return $array;
-    }
 
     public function actionUpdate(){
 
@@ -168,6 +161,39 @@ class SubCategoriasController extends \yii\web\Controller
             return json_encode(array("codigo"=>1));       
         }else{
             return json_encode(array("codigo"=>5));
+        }
+    }
+
+    public function actionActivar(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $id = $this->request->queryParams['id'];
+
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Token invalido'));
+
+
+            if (!isset($id) || empty($id))
+                return json_encode(array("codigo"=>3, 'mensaje' => 'El id es obligatorio'));
+
+            $subcategoria = SubCategorias::findOne(['subcat_id' => $id]);
+
+            if ($subcategoria == null)
+                return json_encode(array("codigo"=>4, 'mensaje' => 'SubCategoria no encontrada'));
+            if ($subcategoria->subcat_vigente == "S")
+                return json_encode(array("codigo"=>5, 'mensaje' => 'La subcategoria ya esta activada'));
+
+            $subcategoriaModeloViejo = json_encode($subcategoria->attributes);
+            $subcategoria->subcat_vigente = "S";
+            $subcategoria->save();
+            $subcategoriaModeloNuevo = json_encode($subcategoria->attributes);             
+            $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
+            $id_logAbm = LogAbm::nuevoLog(SubCategorias::tableName(),4,$subcategoriaModeloViejo,$subcategoriaModeloNuevo,"Activar subcategoria", $usu_id_admin);
+            LogAccion::nuevoLog("Activar subcategoria","Activar subcategoria con id=".$id, $id_logAbm);
+
+            return json_encode(array("codigo"=>6, 'mensaje' => 'Se a activado con exito'));      
+        }else{
+            return json_encode(array("codigo"=>7, 'mensaje' => 'El metodo no es el correcto'));   
         }
     }
 

@@ -232,7 +232,7 @@ class UsuariosController extends \yii\web\Controller
             $datos = $this->request->bodyParams;
 
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                return json_encode(array("codigo"=>2, 'mensaje' => 'Debe ser un usuario adminitrador'));
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Token invalido'));
 
 
             if (!isset($datos['id']) || empty($datos['id']))
@@ -343,6 +343,39 @@ class UsuariosController extends \yii\web\Controller
             return json_encode(array("codigo"=>13, 'mensaje' => 'Se a modificado con exito'));      
         }else{
             return json_encode(array("codigo"=>14, 'mensaje' => 'El metodo no es el correcto'));   
+        }
+    }
+
+    public function actionActivar(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $id = $this->request->queryParams['id'];
+
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+                return json_encode(array("codigo"=>2, 'mensaje' => 'Token invalido'));
+
+
+            if (!isset($id) || empty($id))
+                return json_encode(array("codigo"=>3, 'mensaje' => 'El id es obligatorio'));
+
+            $usuario = Usuarios::findOne(['usu_id' => $id]);
+
+            if ($usuario == null)
+                return json_encode(array("codigo"=>4, 'mensaje' => 'Usuario no encontrado'));
+            if ($usuario->usu_habilitado == "S")
+                return json_encode(array("codigo"=>5, 'mensaje' => 'El usuario ya esta activado'));
+
+            $usuarioModeloViejo = json_encode($usuario->attributes);
+            $usuario->usu_habilitado = "S";
+            $usuario->save();
+            $usuarioModeloNuevo = json_encode($usuario->attributes);             
+            $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
+            $id_logAbm = LogAbm::nuevoLog(Usuarios::tableName(),4,$usuarioModeloViejo,$usuarioModeloNuevo,"Activar usuario", $usu_id_admin);
+            LogAccion::nuevoLog("Activar usuario","Activar usuario con id=".$id, $id_logAbm);
+
+            return json_encode(array("codigo"=>6, 'mensaje' => 'Se a activado con exito'));      
+        }else{
+            return json_encode(array("codigo"=>7, 'mensaje' => 'El metodo no es el correcto'));   
         }
     }
 }
