@@ -109,7 +109,7 @@ class LibrosController extends \yii\web\Controller
 
             if(!isset($datos['stock']) || empty($datos['stock']))
             {
-                return json_encode(array("codigo"=>101, "mensaje"=>"La URL del libro es obligatoria."));
+                return json_encode(array("codigo"=>101, "mensaje"=>"El stock del libro es obligatorio."));
             }else{
                 if(!is_numeric($datos['stock']))
                 {

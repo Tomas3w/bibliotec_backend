@@ -58,7 +58,7 @@ class ComentariosController extends \yii\rest\ActiveController
 
     public function actionVigentes()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' || $_SERVER['REQUEST_METHOD'] === 'POST') {
             $datos = $this->request->bodyParams;
             if (!isset($datos['lib_id']))
                 return ['error' => true, 'error_tipo' => 0, 'error_mensaje' => 'Falta atributo lib_id'];
