@@ -153,6 +153,15 @@ class Reservas extends \yii\db\ActiveRecord
 
     }
 
+    public function cancelar_en_caso_de_ser_necesario()
+    {
+        $currentDate = new \DateTime();
+
+        $fechaHasta = new \DateTime($this->resv_fecha_hasta);
+        if ($currentDate > $fechaHasta && ($this->resv_estado == "P" || $this->resv_estado == "C"))
+            cancelarReserva($this->resv_id, "Se cancelo de forma automatica por pasar la fecha limite");
+    }
+
     public static function getNombreUsuID()
     {
         return 'resv_usu_id';

@@ -49,6 +49,7 @@ class ReservasController extends \yii\rest\ActiveController
         {
             $idUsuario = $verificacionToken;
             $misReservas = Reservas::obtenerReservas($idUsuario);
+            static::cancelar_reservas_en_caso_de_ser_necesario($misReservas);
             $misReservas = ReservasController::generarEstructuraReservas($misReservas);
             $respuesta = array("code"=>0,"msg"=>"Reservas obtenidas correctamente","datos"=>array('reservas'=>$misReservas));
         }else{
@@ -147,6 +148,7 @@ class ReservasController extends \yii\rest\ActiveController
             return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'id de usuario es necesaria'];
         $id = $_GET['id'];
         $reservas = Reservas::findAll(['resv_usu_id' => $id]);
+        static::cancelar_reservas_en_caso_de_ser_necesario($reservas);
         if (count($reservas) == 0)
             return ['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'no existe reserva para el id especificado'];
         
@@ -180,7 +182,8 @@ class ReservasController extends \yii\rest\ActiveController
         if (!isset($_GET['id']))
             return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'id del libro es necesario'];
         $id = $_GET['id'];
-        $reservas = Reservas::findAll(['resv_lib_id' => $id]);        
+        $reservas = Reservas::findAll(['resv_lib_id' => $id]);    
+        static::cancelar_reservas_en_caso_de_ser_necesario($reservas);    
 
         // Recorrer las reservas y Agregarle el isbn
         $array = array();
@@ -207,6 +210,7 @@ class ReservasController extends \yii\rest\ActiveController
                 ];
             }
             $reservas = Reservas::find()->all();
+            static::cancelar_reservas_en_caso_de_ser_necesario($reservas);
 
             $arrayReservas = array();
             foreach($reservas as $reserva){
@@ -236,6 +240,12 @@ class ReservasController extends \yii\rest\ActiveController
                 "codigo" => 5
             ];
         }
+    }
+
+    // toma modelos de reservas y los actualiza (y los guarda) en caso de que hayan pasado la fecha de vencimiento
+    public static function cancelar_reservas_en_caso_de_ser_necesario($reservas) {
+        foreach($reservas as $reserva)
+            $reserva->cancelar_en_caso_de_ser_necesario();
     }
 }
 
