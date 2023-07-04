@@ -33,7 +33,7 @@ class UsuariosController extends \yii\web\Controller
             if ($usuario == null)
                 return json_encode(array("codigo"=>4));
             
-            if ($usuario->usu_habilitado == "N")
+            if ($usuario->usu_activo == "N")
                 return json_encode(array("codigo"=>9));
             
             // DAR BAJA
@@ -41,7 +41,8 @@ class UsuariosController extends \yii\web\Controller
             $usuarioNuevo = null;
             $nombreTabla = Usuarios::tableName();
             $usuarioViejo = json_encode($usuario->attributes);
-            $usuario->usu_habilitado = "N"; // Se modifica el atributo usu_habilitado.
+            //$usuario->usu_habilitado = "N";
+            $usuario->usu_activo = "N";
             $usuario->save(); // Se guardan los nuevos cambios.
             $usuarioNuevo = json_encode($usuario->attributes);
             
@@ -143,7 +144,6 @@ class UsuariosController extends \yii\web\Controller
             if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
                 return json_encode(array("codigo"=>3));
             $usuarios = Usuarios::find()->all();
-            $usuarioshabilitados = Usuarios::findAll(['usu_habilitado' => 'S']);
 
             $arrayUsuarios = UsuariosController::generarEstructuraListado($usuarios);
             return json_encode(array("codigo"=>0, "data"=>$arrayUsuarios));
@@ -168,7 +168,6 @@ class UsuariosController extends \yii\web\Controller
             $index['activo'] = $usuario['usu_activo'];
             $index['tipo_usuario'] = $usuario['usu_tipo_usuario'];
             $index['habilitado'] = $usuario['usu_habilitado'];
-            // $index['token'] = $usuario['usu_token'];
 
             array_push($array,$index);
         }
@@ -298,14 +297,14 @@ class UsuariosController extends \yii\web\Controller
                 }
             } 
             
-            if (isset($datos['activo'])){
-                if(empty($datos['activo'])){
-                    return json_encode(array("codigo"=>10, 'mensaje' => 'El atributo activo esta vacio'));
+            if (isset($datos['habilitado'])){
+                if(empty($datos['habilitado'])){
+                    return json_encode(array("codigo"=>10, 'mensaje' => 'El atributo habilitado esta vacio'));
                 }else{
-                    if (($datos['activo'] != 'S' && $datos['activo'] != 'N')){
-                        return json_encode(array("codigo"=>101, 'mensaje' => 'El atributo activo no cumple la especificacion'));
+                    if (($datos['habilitado'] != 'S' && $datos['habilitado'] != 'N')){
+                        return json_encode(array("codigo"=>101, 'mensaje' => 'El atributo habilitado no cumple la especificacion'));
                     }else{
-                        $usuario->usu_activo = $datos['activo'];
+                        $usuario->usu_habilitado = $datos['habilitado'];
                         $bandera = true;
                     }
                           
@@ -362,11 +361,11 @@ class UsuariosController extends \yii\web\Controller
 
             if ($usuario == null)
                 return json_encode(array("codigo"=>4, 'mensaje' => 'Usuario no encontrado'));
-            if ($usuario->usu_habilitado == "S")
+            if ($usuario->usu_activo == "S")
                 return json_encode(array("codigo"=>5, 'mensaje' => 'El usuario ya esta activado'));
 
             $usuarioModeloViejo = json_encode($usuario->attributes);
-            $usuario->usu_habilitado = "S";
+            $usuario->usu_activo = "S";
             $usuario->save();
             $usuarioModeloNuevo = json_encode($usuario->attributes);             
             $usu_id_admin = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
