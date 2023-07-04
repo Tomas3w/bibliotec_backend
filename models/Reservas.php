@@ -81,7 +81,7 @@ class Reservas extends \yii\db\ActiveRecord
             ->andWhere(['!=', 'resv_estado', 'X'])
             ->andWhere(['!=', 'resv_estado', 'D'])
             ->all()) > 3)
-            $this->addError($attribute, "El usuario especificado tiene 3 reservas ya");
+            $this->addError($attribute, "El usuario especificado tiene 4 reservas ya");
     }
 
     public function reservaIntervalo($attribute, $params)
