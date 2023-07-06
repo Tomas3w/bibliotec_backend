@@ -153,13 +153,29 @@ class Reservas extends \yii\db\ActiveRecord
 
     }
 
-    public function cancelar_en_caso_de_ser_necesario()
+    public function actualizar_en_caso_de_ser_necesario()
     {
         $currentDate = new \DateTime();
 
+        $fechaDesdeMas48 = new \DateTime($this->resv_fecha_desde);
+        $fechaDesdeMas48->add(new \DateInterval('PT48H'));
+
         $fechaHasta = new \DateTime($this->resv_fecha_hasta);
-        if ($currentDate > $fechaHasta && ($this->resv_estado == "P" || $this->resv_estado == "C"))
-            cancelarReserva($this->resv_id, "Se cancelo de forma automatica por pasar la fecha limite");
+        if ($currentDate > $fechaHasta)
+        {
+            if ($this->resv_estado == "P" || $this->resv_estado == "C")
+            {
+                $this->resv_estado = 'X';
+                static::cancelarReserva($this->resv_id, "Se cancelo de forma automatica por pasar la fecha limite de la reserva");
+            }
+            elseif ($this->resv_estado == "L")
+                $this->resv_estado = 'N';
+        }
+        elseif ($currentDate > $fechaDesdeMas48 && ($this->resv_estado == "P" || $this->resv_estado == "C"))
+        {
+            cancelarReserva($this->resv_id, "Se cancelo de forma automatica por pasar la fecha para levantar el libro");
+        }
+        $this->save();
     }
 
     public static function getNombreUsuID()
