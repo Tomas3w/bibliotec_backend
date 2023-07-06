@@ -196,7 +196,7 @@ class ReservasController extends \yii\rest\ActiveController
             array_push($array,$index);
         }
 
-        return ['error' => false, 'reserva' => $array];
+        return ['error' => false, 'reserva' => $array, 'stock' => Libros::findOne(['lib_id' => $id])];
     }
 
 
