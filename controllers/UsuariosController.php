@@ -312,16 +312,12 @@ class UsuariosController extends \yii\web\Controller
             }
 
             if (isset($datos['tipo'])){
-                if(empty($datos['tipo'])){
-                    return json_encode(array("codigo"=>11, 'mensaje' => 'El atributo tipo esta vacio'));
+
+                if (($datos['tipo'] != 1 && $datos['tipo'] != 0)){
+                    return json_encode(array("codigo"=>111, 'mensaje' => 'El atributo tipo no cumple la especificacion'));
                 }else{
-                    if (($datos['tipo'] != 1 && $datos['tipo'] != 0)){
-                        return json_encode(array("codigo"=>111, 'mensaje' => 'El atributo tipo no cumple la especificacion'));
-                    }else{
-                        $usuario->usu_tipo_usuario = $datos['tipo'];
-                        $bandera = true;
-                    }
-                          
+                    $usuario->usu_tipo_usuario = $datos['tipo'];
+                    $bandera = true;
                 }
             } 
 
