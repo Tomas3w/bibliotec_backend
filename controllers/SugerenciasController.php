@@ -15,6 +15,22 @@ class SugerenciasController extends \yii\rest\ActiveController
     public $modelClass = Sugerencias::class;
     public $modeloViejo;
 
+    public function actionObtenerDeUsuario()
+    {
+        $this->modeloViejo = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if (!isset($_GET['id']))
+                return ['error' => true, 'error_tipo' => 1, 'error_mensaje' => 'No se paso id del usuario'];
+            $id = (int)$_GET['id'];
+            if ($id == 0)
+                return ['error' => true, 'error_tipo' => 2, 'error_mensaje' => 'El id del usuario tiene que ser un int'];
+            $sugerencias = Sugerencias::findAll(['sug_usu_id' => $id]);
+            return ['error' => false, 'sugerencias' => $sugerencias];
+        }
+        else
+            return ['error' => true, 'error_tipo' => 3, 'error_mensaje' => 'Este endpoint funciona solo con el metodo GET'];
+    }
+
     public function actionModificarEstado()
     {
         $this->modeloViejo = null;
@@ -45,6 +61,8 @@ class SugerenciasController extends \yii\rest\ActiveController
     {
         if (!parent::beforeAction($action))
             return false;
+        if ($action->id == 'obtener-de-usuario')
+            return true;
         if ($action->id == 'modificar-estado')
         {
             if (isset($this->request->bodyParams['sug_id']))
