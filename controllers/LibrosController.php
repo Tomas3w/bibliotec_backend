@@ -222,9 +222,12 @@ class LibrosController extends \yii\web\Controller
 
     public function actionObtenerTodosLibros()
     {
-       
-        $token = $_GET['token'];
-        $verificacionToken = Tokens::verificarToken($token);
+        $verificacionToken = 'NE';
+        if (isset($this->request->headers['Authorization']))
+        {
+            $token = explode(' ', $this->request->headers['Authorization'])[1];
+            $verificacionToken = Tokens::verificarToken($token);
+        }
         if(is_numeric($verificacionToken))
         {
             $idUsuario = $verificacionToken;

@@ -40,8 +40,12 @@ class ReservasController extends \yii\rest\ActiveController
 
     public function actionMisReservas()
     {
-        $token = $_GET['token'];
-        $verificacionToken = Tokens::verificarToken($token);
+        $verificacionToken = 'NE';
+        if (isset($this->request->headers['Authorization']))
+        {
+            $token = explode(' ', $this->request->headers['Authorization'])[1];
+            $verificacionToken = Tokens::verificarToken($token);
+        }
         
         $respuesta = array("code"=>102,"msg"=>"Error a la hora de obtener las reservas");
 
