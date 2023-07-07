@@ -57,6 +57,9 @@ $config = [
                 '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
                 ['class' => 'yii\rest\UrlRule', 'controller' => ['comentarios','libros', 'reservas', 'favoritos', 'sugerencias']],
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['favoritos'], 'pluralize' => false, 'extraPatterns' => [
+                    'DELETE quitar' => 'quitar',
+                ]],
             ],
         ],
     ],
