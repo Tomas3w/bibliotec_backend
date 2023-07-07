@@ -96,7 +96,7 @@ class FavoritosController extends \yii\rest\ActiveController
             $lib_id = $this->request->queryParams['id'];
         
             if (!isset($lib_id) || empty($lib_id))
-                return array("codigo" => 2, 'mensaje' => 'lib_id es obligatorio');
+                return array("codigo" => 2, 'mensaje' => 'id es obligatorio');
                        
             $favorito = Favoritos::findOne(['fav_usu_id' => $usu_id, 'fav_lib_id' => $lib_id]);
             if ($favorito == null)
@@ -109,9 +109,9 @@ class FavoritosController extends \yii\rest\ActiveController
         
             $id_logAbm = LogAbm::nuevoLog(Favoritos::tableName(), 3, $favoritoViejo, null, "Eliminado favorito", $usu_id);
             LogAccion::nuevoLog("Eliminado favorito", "Eliminado favorito con id=" . $id_aux, $id_logAbm);
-            return array("codigo" => 5, 'mensaje' => 'Se eliminó con éxito');
+            return array("codigo" => 4, 'mensaje' => 'Se eliminó con éxito');
         }else{
-            return array("codigo" => 6, 'mensaje' => 'Metodo http incorrecto');
+            return array("codigo" => 5, 'mensaje' => 'Metodo http incorrecto');
         }
     }
     
