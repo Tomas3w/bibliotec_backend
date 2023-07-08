@@ -87,6 +87,36 @@ class FavoritosController extends \yii\rest\ActiveController
         }
     }
 
+    public function actionQuitar()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            
+            $usu_id = Usuarios::findIdentityByAccessToken(Usuarios::getTokenFromHeaders($this->request->headers))->usu_id;
+
+            $lib_id = $this->request->queryParams['id'];
+        
+            if (!isset($lib_id) || empty($lib_id))
+                return array("codigo" => 2, 'mensaje' => 'id es obligatorio');
+                       
+            $favorito = Favoritos::findOne(['fav_usu_id' => $usu_id, 'fav_lib_id' => $lib_id]);
+            if ($favorito == null)
+                return array("codigo" => 3, 'mensaje' => 'No se encontró el favorito');
+        
+            $favoritoViejo = null;
+            $favoritoViejo = json_encode($favorito->attributes);
+            $id_aux = $favorito->fav_id;
+            $favorito->delete();
+        
+            $id_logAbm = LogAbm::nuevoLog(Favoritos::tableName(), 3, $favoritoViejo, null, "Eliminado favorito", $usu_id);
+            LogAccion::nuevoLog("Eliminado favorito", "Eliminado favorito con id=" . $id_aux, $id_logAbm);
+            return array("codigo" => 4, 'mensaje' => 'Se eliminó con éxito');
+        }else{
+            return array("codigo" => 5, 'mensaje' => 'Metodo http incorrecto');
+        }
+    }
+    
+    
+
 
 }   
 
