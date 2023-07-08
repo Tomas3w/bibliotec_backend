@@ -173,7 +173,8 @@ class Reservas extends \yii\db\ActiveRecord
         }
         elseif ($currentDate > $fechaDesdeMas48 && ($this->resv_estado == "P" || $this->resv_estado == "C"))
         {
-            cancelarReserva($this->resv_id, "Se cancelo de forma automatica por pasar la fecha para levantar el libro");
+            $this->resv_estado = 'X';
+            static::cancelarReserva($this->resv_id, "Se cancelo de forma automatica por pasar la fecha para levantar el libro");
         }
         $this->save();
     }
