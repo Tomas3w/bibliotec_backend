@@ -60,9 +60,9 @@ class FavoritosController extends \yii\rest\ActiveController
     {
         //header('Access-Control-Allow-Origin: *');
         //header("Content-type: application/json; charset=utf-8");
-        if(isset($_GET['token']) && !empty($_GET['token']))
+        if(isset($this->request->headers['Authorization']) && !empty($this->request->headers['Authorization']))
         {
-            $tokenUsuario = $_GET['token'];
+            $tokenUsuario = explode(' ', $this->request->headers['Authorization'])[1];
             $verificacionToken = Tokens::verificarToken($tokenUsuario);
             if(is_numeric($verificacionToken))
             {
