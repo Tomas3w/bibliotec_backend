@@ -29,6 +29,9 @@ class FavoritosController extends \yii\rest\ActiveController
                 return true;
             throw new ForbiddenHttpException("Bearer token no es valido o no existe administrador con ese token [puede ser que no se haya especificado el id de ".$this->modelClass."]");
         }
+        if ($action->id == 'quitar')
+            return true;
+
         return true;
     }
 
