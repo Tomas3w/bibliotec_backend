@@ -228,7 +228,7 @@ class LibrosController extends \yii\web\Controller
             $token = explode(' ', $this->request->headers['Authorization'])[1];
             $verificacionToken = Tokens::verificarToken($token);
         }
-        var_dump($verificacionToken);exit;
+        
         if(is_numeric($verificacionToken))
         {
             $idUsuario = $verificacionToken;
@@ -254,7 +254,7 @@ class LibrosController extends \yii\web\Controller
                 break;
             }
         }
-        return $respuesta;
+        return json_encode($respuesta);
     }
 
     public function actionObtenerLibro()
