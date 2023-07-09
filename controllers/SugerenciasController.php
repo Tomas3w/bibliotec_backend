@@ -74,12 +74,16 @@ class SugerenciasController extends \yii\rest\ActiveController
                 $this->modeloViejo = null;
             return true;
         }
+        if ($action->id == 'listado')
+            return true;
+
         if (in_array($action->id, ['create', 'view', 'index']))
         {
             if (isset($this->request->bodyParams['sug_vigente']))
                 throw new ForbiddenHttpException("sug_vigente deberia ser cambiado (o creado) con el endpoint sugerencias-estado");
             if ($action->id == 'view' || $action->id == 'index')
                 return true;
+            
             if ($action->id == 'create' && Usuarios::checkPostAuth($this->request, $this->modelClass))
                 return true;
             throw new ForbiddenHttpException("Bearer token no es valido o no existe administrador con ese token [puede ser que no se haya especificado ".$this->modelClass::getNombreUsuID()."]");
@@ -118,6 +122,36 @@ class SugerenciasController extends \yii\rest\ActiveController
         return $result;
     }
 
+
+    public function actionListado()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $sugerencias = Sugerencias::find()->all();
+            
+            $array = array();
+            foreach($sugerencias as $sugerencia)
+            {
+                $usuario = Usuarios::findOne(['usu_id' => $sugerencia['sug_usu_id']]);
+                $index = array(); // Corrección: crear un nuevo array en cada iteración
+                
+                $index['sug_id'] = $sugerencia['sug_id'];
+                $index['sug_sugerencia'] = $sugerencia['sug_sugerencia'];
+                $index['sug_fecha_hora'] = $sugerencia['sug_fecha_hora'];
+                $index['sug_vigente'] = $sugerencia['sug_vigente'];
+                $index['sug_nombre_libro'] = $sugerencia['sug_nombre_libro'];
+                $index['sug_link'] = $sugerencia['sug_link'];
+                $index['sug_isbn'] = $sugerencia['sug_isbn'];
+                $index['sug_usu_id'] = $sugerencia['sug_usu_id'];
+                $index['usu_nombre_apellido'] = $usuario['usu_nombre'] . ' ' . $usuario['usu_apellido'];
+        
+                $array[] = $index; // Corrección: agregar el array $index a $array
+            }
+            return $array;
+        }else{
+            return array("codigo" => 2, 'mensaje' => 'Metodo http incorrecto');
+        }
+    }
+    
 }
 
 ?>
