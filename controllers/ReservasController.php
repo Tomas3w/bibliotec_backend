@@ -23,8 +23,30 @@ class ReservasController extends \yii\rest\ActiveController
             throw new ForbiddenHttpException("No se puede eliminar reserva");
         if (in_array($action->id, ['create', 'update', 'delete']))
         {
-            if (isset($this->request->bodyParams['resv_estado']) and !Usuarios::checkIfAdmin($this->request, $this->modelClass))
-                throw new ForbiddenHttpException("Solo un administrador puede cambiar el estado de una reserva");
+            if (!Usuarios::checkIfAdmin($this->request, $this->modelClass))
+            {
+                if (isset($this->request->bodyParams['resv_estado']))
+                {
+                    if ($action->id == 'create')
+                        throw new ForbiddenHttpException("Al crear una reserva no se puede especificar el estado (como estudiante)");
+                    $reserva = Reservas::findOne(['resv_id' => (int)$_GET['id']]);
+                    if ($reserva == null)
+                        return false;
+                    $currentDate = new \DateTime();
+                    $fechaDesdeMas48 = new \DateTime($reserva->resv_fecha_desde);
+                    $fechaDesdeMas48->add(new \DateInterval('PT48H'));
+
+                    if ($currentDate > $fechaDesdeMas48 || ($reserva->resv_estado != "P" && $reserva->resv_estado != "C") || ($this->request->bodyParams['resv_estado'] != 'L' && $this->request->bodyParams['resv_estado'] != 'X'))
+                        throw new ForbiddenHttpException("Solo un administrador puede cambiar el estado de una reserva (a menos que se quiera levantar una reserva)");
+                }
+                if ($action->id == 'update')
+                {
+                    if (isset($this->request->bodyParams['resv_fecha_desde']))
+                        throw new ForbiddenHttpException("Solo un administrador puede cambiar la fecha de inicio de una reserva");
+                    if (isset($this->request->bodyParams['resv_fecha_hasta']))
+                        throw new ForbiddenHttpException("Solo un administrador puede cambiar la fecha_hasta de una reserva");
+                }
+            }
             if ($action->id == 'create' && Usuarios::checkPostAuth($this->request, $this->modelClass))
             {
                 return true;
